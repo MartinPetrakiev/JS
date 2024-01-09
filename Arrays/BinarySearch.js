@@ -7,11 +7,17 @@ function binarySearch(input) {
     }
 
     const X = input.shift();
+    let positionSearched = -1;
 
     let leftIndex = 0
     let rightIndex = N - 1
     while (leftIndex < rightIndex) {
         let midIndex = Math.floor((leftIndex + rightIndex) / 2)
+        if (midIndex === X) {
+            positionSearched = midIndex;
+            break;
+        }
+
         if (array[midIndex] < X) {
             leftIndex = midIndex + 1
         } else {
@@ -20,10 +26,10 @@ function binarySearch(input) {
     }
 
     if (array[leftIndex] = X) {
-        return leftIndex;
+        positionSearched = leftIndex;
     }
 
-    return -1;
+    return positionSearched;
 }
 
 console.log(binarySearch([10, 1,2,3,4,5,5,6,7,8,9, 5]));
