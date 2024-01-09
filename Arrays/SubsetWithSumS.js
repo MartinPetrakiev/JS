@@ -21,16 +21,16 @@ function findSubsetWithSumEqualToS (array, S) {
 //testing alternative
 function findSubsetWithSumEqualToS_2(inputArray, S) {
     if (S === 0) {
-        return 'yes';
+        return true;
     }
 
     if (inputArray.length === 0 && S !== 0) {
-        return 'no';
+        return false;
     }
 
     if (inputArray[inputArray.length - 1] <= S) {
         if (findSubsetWithSumEqualToS_2(inputArray.slice(0, inputArray.length - 1), S - inputArray[inputArray.length - 1])) {
-            return 'yes';
+            return true;
         }
     }
 
@@ -57,7 +57,20 @@ function findSubsetWithSumEqualToS_3(arr, S) {
 
 console.log(findSubsetWithSumEqualToS([2, 1, 2, 4, 3, 5, 2, 6], 14))
 
-console.log(findSubsetWithSumEqualToS_2([2, 1, 2, 4, 3, 5, 2, 6], 14))
+console.log(findSubsetWithSumEqualToS_2([2, 1, 2, 4, 3, 5, 2, 6], 14) ? 'yes' : 'no')
+
+function benchmark(func, args) {
+    const start = performance.now();
+    const result = func(...args);
+    const end = performance.now();
+    console.log(`${func.name} -> ${end - start} ms`);
+    return result;
+}
+
+
+benchmark(findSubsetWithSumEqualToS, [[2, 1, 2, 4, 3, 5, 2, 6], 14]);
+
+benchmark(findSubsetWithSumEqualToS_2,  [[2, 1, 2, 4, 3, 5, 2, 6], 14]);
 
 /*
 08. Subset with sum S
