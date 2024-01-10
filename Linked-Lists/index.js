@@ -236,9 +236,19 @@ class LinkedList {
     }
 
     toString() {
-        const array = this.toArray()
+        let result = '';
+        let current = this._head;
+        for (let i = 0; i < this._length; i++) {
+            if (i + 1 === this._length) {
+                result += current.data;
+                break;
+            }
 
-        return array.join(' -> ');
+            result += `${current.data} -> `;
+            current = current.next;
+        }
+
+        return result;
     }
 }
 
