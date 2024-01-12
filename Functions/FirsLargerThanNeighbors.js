@@ -3,11 +3,7 @@ function firstLargestThanNeighbors(input) {
     const array = arrayString.split(' ').map(v => Number(v));
     let firstLargestIndex = -1;
 
-    for (let i = 0; i < N; i++) {
-        if (i - 1 < 0 || i + 1 > N - 1) {
-            continue;
-        }
-
+    for (let i = 1; i < N - 1; i++) {
         if (array[i - 1] < array[i] && array[i + 1] < array[i]) {
             firstLargestIndex = i;
             break;
