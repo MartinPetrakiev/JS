@@ -10,24 +10,25 @@ function printBiggestPrimeNumberFromArray(input) {
 }
 
 function isPrime(number) {
-    let result = true;
+    let result = false;
 
-    if (number <= 1) {
-        result = false;
-    }
-    else if (number == 2 || number == 3 || number == 5) {
+    if (number == 2 || number == 3 || number == 5) {
         result = true;
     }
-    else if (number % 2 == 0 || number % 3 == 0 || number % 5 == 0) {
-        result = false;
-    }
     else {
-        let boundary = Math.floor(Math.sqrt(number));
+        let n = Math.Round(number / 6);
 
-        for (let i = 7; i <= boundary; i += 6) {
-            if (number % i == 0 || number % (i + 2) == 0) {
-                result = false;
-                break;
+        if (n < number / 6) {
+            n = 6 * n + 1;
+
+            if (n == number) {
+                result = true;
+            }
+        }
+        else {
+            n = 6 * n - 1;
+            if (n == number) {
+                result = true;
             }
         }
     }

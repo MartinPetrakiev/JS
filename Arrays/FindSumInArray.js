@@ -16,11 +16,6 @@ function findSumInArray(inputArray, S) {
             continue;
         }
 
-        if (currentSum < S && currentPosition + 1 === currentArray.length) {
-            currentSequenc = [];
-            break;
-        }
-
         if (currentSum === S) {
             break;
         }
