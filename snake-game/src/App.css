@@ -1,0 +1,59 @@
+.app {
+  position: relative;
+	display: flex;
+	flex-direction: column;
+  align-items: center;
+  height: 98vh;
+  width: 100%;
+  background: papayawhip;
+}
+
+.title {
+  font-size: 1.5em;
+  text-align: center;
+  color: darkslategrey;
+}
+
+.box {
+  display: flex;
+}
+
+.content {
+  font-size: 1em;
+  text-align: center;
+  color: darkslategrey;
+}
+
+.wrapper {
+  position: relative;
+  height: 480px;
+  width: 480px;
+  background: darkslategrey;
+}
+
+.button {
+  color: teal;
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border: 2px solid teal;
+  border-radius: 3px;
+  float: right;
+}
+
+.food-item {
+  position: absolute;
+	background: tomato;
+	height: 32px;
+	width: 32px;
+	border-radius: 50%;
+	z-index: 1;
+}
+
+.snake-item {
+  position: absolute;
+	height: 32px;
+	width: 32px;
+	background: mediumseagreen;
+  z-index: 2;
+}
