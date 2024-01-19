@@ -59,6 +59,15 @@
 	z-index: 1;
 }
 
+.danger-item {
+  position: absolute;
+	background: black;
+	height: 32px;
+	width: 32px;
+	border-radius: 50%;
+	z-index: 1;
+}
+
 .snake-item {
   position: absolute;
 	height: 32px;

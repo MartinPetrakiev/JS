@@ -1,16 +1,20 @@
 const BOARD_MIN = 0;
 const BOARD_MAX = 40;
 
-export const getRandomCoordinates = () => {
-  let min = 1;
-  let max = 38;
-  let x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
-  let y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
+export function getRandomCoordinates(snakeDots) {
+  let min = BOARD_MIN + 1;
+  let max = BOARD_MAX - 2;
+  let x, y;
+  do {
+    x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
+    y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
+  } while (checkCoordinateCollisionWithSnake([x, y], snakeDots));
+
   return [x, y];
 };
 
-export const moveSnake = (state, direction, snakeDots, setSnakeDots) => {
-  if (state === true) {
+export function moveSnake(state, direction, snakeDots, setSnakeDots) {
+  if (state) {
     let dots = [...snakeDots];
     let head = dots[dots.length - 1];
 
@@ -36,9 +40,7 @@ export const moveSnake = (state, direction, snakeDots, setSnakeDots) => {
   }
 };
 
-export const checkCollision = (
-  gameParams, onGameOver
-) => {
+export function checkCollision(gameParams, onGameOver) {
   let currentHead = gameParams.snakeDots[gameParams.snakeDots.length - 1];
 
   checkIfEat(gameParams);
@@ -46,11 +48,20 @@ export const checkCollision = (
   checkIfCollapsed(gameParams, currentHead, onGameOver);
 };
 
+function checkCoordinateCollisionWithSnake(coordinates, snakeDots) {
+  for (let dot of snakeDots) {
+    if (dot[0] === coordinates[0] && dot[1] === coordinates[1]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function checkIfEat(gameParams) {
   let head = gameParams.snakeDots[gameParams.snakeDots.length - 1];
 
   if (head[0] === gameParams.foodDot[0] && head[1] === gameParams.foodDot[1]) {
-    gameParams.setFoodDot(getRandomCoordinates());
+    gameParams.setFoodDot(getRandomCoordinates(gameParams.snakeDots));
     enlargeSnake(gameParams);
     increaseSpeed(gameParams);
     gameParams.setPoint(gameParams.point + 10);
@@ -60,8 +71,8 @@ function checkIfEat(gameParams) {
 function checkIfOutOfBorders(gameParams, onGameOver) {
   let head = gameParams.snakeDots[gameParams.snakeDots.length - 1];
   if (
-    head[0] ===  BOARD_MAX ||
-    head[1] ===  BOARD_MAX ||
+    head[0] === BOARD_MAX ||
+    head[1] === BOARD_MAX ||
     head[0] <= BOARD_MIN ||
     head[1] <= BOARD_MIN
   ) {

@@ -3,21 +3,24 @@ import Snake from "./components/Snake";
 import Food from "./components/Food";
 import "./App.css";
 import { getRandomCoordinates, moveSnake, checkCollision } from "./gameLogic";
+import DangerItem from "./components/DangerItem";
 
 function App() {
-  const [snakeDots, setSnakeDots] = useState([
+  const initialSnakeDots = [
     [2, 2],
     [2, 4],
     [2, 6],
     [2, 8],
-  ]);
-  const [foodDot, setFoodDot] = useState(getRandomCoordinates());
+  ];
+  const [snakeDots, setSnakeDots] = useState(initialSnakeDots);
+  const [foodDot, setFoodDot] = useState(getRandomCoordinates(initialSnakeDots));
   const [direction, setDirection] = useState("RIGHT");
   const [alive, setAlive] = useState(false);
   const [speed, setSpeed] = useState(300);
   const [startButtonName, setStartButtonName] = useState("Play");
   const [point, setPoint] = useState(0);
   const [isPaused, setIsPaused] = useState(true);
+  const [dangerDot, setDangerDot] = useState(null);
 
   useEffect(() => {
     document.onkeydown = onKeyDown;
@@ -34,14 +37,24 @@ function App() {
             speed,
             setSpeed,
             point,
-            setPoint
+            setPoint,
           },
           onGameOver
         );
       }
     }, speed);
-    return () => clearInterval(run);
-  });
+
+    const dangerDotInterval = setInterval(() => {
+      if (!isPaused) {
+        setDangerDot(getRandomCoordinates(snakeDots));
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(run)
+      clearInterval(dangerDotInterval);
+    };
+  }, [isPaused, direction, snakeDots, alive, foodDot, speed, point, onGameOver]);
 
   function onKeyDown(e) {
     switch (e.keyCode) {
@@ -97,6 +110,7 @@ function App() {
           <div className="wrapper">
             <Snake snakeDots={snakeDots} />
             <Food foodDot={foodDot} />
+            {dangerDot && <DangerItem dangerDot={dangerDot} />}
           </div>
         </div>
       ) : (
