@@ -1,11 +1,11 @@
-const BOARD_MIN = 0
-const BOARD_MAX = 30
+const BOARD_MIN = 0;
+const BOARD_MAX = 40;
 
 export const getRandomCoordinates = () => {
-	let min = 1;
-	let max = 28;
-	let x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
-	let y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
+  let min = 1;
+  let max = 38;
+  let x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
+  let y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
   return [x, y];
 };
 
@@ -37,73 +37,47 @@ export const moveSnake = (state, direction, snakeDots, setSnakeDots) => {
 };
 
 export const checkCollision = (
-  direction,
-  snakeDots,
-  setSnakeDots,
-  foodDot,
-  setFoodDot,
-  speed,
-  setSpeed,
-  point,
-  setPoint,
-  onGameOver
+  gameParams, onGameOver
 ) => {
-  let head = snakeDots[snakeDots.length - 1];
-  let food = foodDot;
+  let currentHead = gameParams.snakeDots[gameParams.snakeDots.length - 1];
 
-  checkIfEat(
-    direction,
-    snakeDots,
-    setSnakeDots,
-    food,
-    setFoodDot,
-    speed,
-    setSpeed,
-    point,
-    setPoint
-  );
-
-  checkIfOutOfBorders(snakeDots, onGameOver);
-  checkIfCollapsed(snakeDots, head, onGameOver);
+  checkIfEat(gameParams);
+  checkIfOutOfBorders(gameParams, onGameOver);
+  checkIfCollapsed(gameParams, currentHead, onGameOver);
 };
 
-function checkIfEat(
-  direction,
-  snakeDots,
-  setSnakeDots,
-  food,
-  setFoodDot,
-  speed,
-  setSpeed,
-  point,
-  setPoint
-) {
-  let head = snakeDots[snakeDots.length - 1];
+function checkIfEat(gameParams) {
+  let head = gameParams.snakeDots[gameParams.snakeDots.length - 1];
 
-  if (head[0] === food[0] && head[1] === food[1]) {
-    setFoodDot(getRandomCoordinates());
-    enlargeSnake(direction, snakeDots, setSnakeDots);
-    increaseSpeed(speed, setSpeed);
-    setPoint(point + 10);
+  if (head[0] === gameParams.foodDot[0] && head[1] === gameParams.foodDot[1]) {
+    gameParams.setFoodDot(getRandomCoordinates());
+    enlargeSnake(gameParams);
+    increaseSpeed(gameParams);
+    gameParams.setPoint(gameParams.point + 10);
   }
 }
 
-const checkIfOutOfBorders = (snakeDots, onGameOver) => {
-  let head = snakeDots[snakeDots.length - 1];
-  if (head[0] === BOARD_MAX || head[1] === BOARD_MAX || head[0] < BOARD_MIN || head[1] < BOARD_MIN) {
+function checkIfOutOfBorders(gameParams, onGameOver) {
+  let head = gameParams.snakeDots[gameParams.snakeDots.length - 1];
+  if (
+    head[0] ===  BOARD_MAX ||
+    head[1] ===  BOARD_MAX ||
+    head[0] <= BOARD_MIN ||
+    head[1] <= BOARD_MIN
+  ) {
     onGameOver();
   }
-};
+}
 
-const checkIfCollapsed = (snakeDots, head, onGameOver,) => {
-  let snake = [...snakeDots];
+function checkIfCollapsed(gameParams, head, onGameOver) {
+  let snake = [...gameParams.snakeDots];
   snake.pop();
   snake.forEach((dot, index) => {
     if (head[0] === dot[0] && head[1] === dot[1]) {
       onGameOver();
     }
   });
-};
+}
 
 function increaseSpeed(speed, setSpeed) {
   if (speed > 10) {
@@ -111,9 +85,9 @@ function increaseSpeed(speed, setSpeed) {
   }
 }
 
-function enlargeSnake(direction, snakeDots, setSnakeDots) {
-  let newDot = snakeDots[snakeDots.length - 1];
-  switch (direction) {
+function enlargeSnake(gameParams) {
+  let newDot = gameParams.snakeDots[gameParams.snakeDots.length - 1];
+  switch (gameParams.direction) {
     case "RIGHT":
       newDot = [newDot[0], newDot[1] + 2];
       break;
@@ -129,6 +103,6 @@ function enlargeSnake(direction, snakeDots, setSnakeDots) {
     default:
       break;
   }
-  let newSnake = [newDot, ...snakeDots];
-  setSnakeDots(newSnake);
+  let newSnake = [newDot, ...gameParams.snakeDots];
+  gameParams.setSnakeDots(newSnake);
 }
