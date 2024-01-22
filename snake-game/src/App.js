@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Snake from "./components/Snake";
 import Food from "./components/Food";
 import "./App.css";
-import { getRandomCoordinates, moveSnake, checkCollision } from "./gameLogic";
+import { getRandomCoordinates, moveSnake, checkCollision, KEYBOARD_KEYS } from "./gameLogic";
 import DangerItem from "./components/DangerItem";
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
   const [startButtonName, setStartButtonName] = useState("Play");
   const [point, setPoint] = useState(0);
   const [isPaused, setIsPaused] = useState(true);
-  const [dangerDot, setDangerDot] = useState(null);
+  const [dangerDots, setDangerDots] = useState([]);
   const [gameHistory, setGameHistory] = useState(
     JSON.parse(localStorage.getItem("gameHistory")) || []
   );
@@ -44,8 +44,8 @@ function App() {
             setSpeed,
             point,
             setPoint,
-            dangerDot,
-            setDangerDot,
+            dangerDots,
+            setDangerDots
           },
           onGameOver
         );
@@ -68,31 +68,39 @@ function App() {
 
   useEffect(() => {
     const dangerDotGenerate = setTimeout(() => {
-      if (!dangerDot && !isPaused) {
-        setDangerDot(getRandomCoordinates(snakeDots));
+      if (!isPaused) {
+        setDangerDots((prev) => [...prev, getRandomCoordinates(snakeDots)]);
       }
-    }, 10000);
+    }, 5000);
 
     return () => {
       clearTimeout(dangerDotGenerate);
     };
-  }, [dangerDot, isPaused]);
+  }, [dangerDots, isPaused]);
+
+  useEffect(() => {
+    if (!isPaused && (dangerDots.length > 10 || point % 50 === 0)) {
+      setDangerDots([]);
+    }
+  },  [point])
 
   function onKeyDown(e) {
+    const { UP, DOWN, LEFT, RIGHT, PAUSE } = KEYBOARD_KEYS;
+
     switch (e.keyCode) {
-      case 38:
+      case UP:
         !isPaused && setDirection("UP");
         break;
-      case 40:
+      case DOWN:
         !isPaused && setDirection("DOWN");
         break;
-      case 37:
+      case LEFT:
         !isPaused && setDirection("LEFT");
         break;
-      case 39:
+      case RIGHT:
         !isPaused && setDirection("RIGHT");
         break;
-      case 32:
+      case PAUSE:
         !isPaused ? setIsPaused(true) : setIsPaused(false);
         break;
       default:
@@ -126,7 +134,7 @@ function App() {
     setStartButtonName("Play again");
     setPoint(0);
     setAlive(true);
-    setDangerDot(null);
+    setDangerDots([]);
     setIsPaused(false);
   }
 
@@ -142,7 +150,10 @@ function App() {
           <div className="wrapper">
             <Snake snakeDots={snakeDots} />
             <Food foodDot={foodDot} />
-            {dangerDot && <DangerItem dangerDot={dangerDot} />}
+            {dangerDots.length > 0 &&
+              dangerDots.map((dangerDot,index) => (
+                <DangerItem key={index} dangerDot={dangerDot} />
+              ))}
           </div>
         </div>
       ) : (
@@ -159,11 +170,11 @@ function App() {
           <div className="box">
             <span className="content">Your points: {point}</span>
             {gameHistory.length > 0 && (
-              <ul>
+              <ul className="game-hitory">
                 {gameHistory.length > 0 &&
                   gameHistory.map((eachGame, index) => (
                     <li key={index}>
-                      {index + 1}. {eachGame.score} -{" "}
+                      {index + 1}. Score: {eachGame.score} -{" "}
                       {new Date(eachGame.timestamp).toLocaleString()}
                     </li>
                   ))}

@@ -1,6 +1,14 @@
 const BOARD_MIN = 0;
 const BOARD_MAX = 40;
 
+export const KEYBOARD_KEYS = {
+  UP: 38,
+  DOWN: 40,
+  LEFT: 37,
+  RIGHT: 39,
+  PAUSE: 32
+}
+
 export function getRandomCoordinates(snakeDots) {
   let min = BOARD_MIN + 1;
   let max = BOARD_MAX - 2;
@@ -17,19 +25,20 @@ export function moveSnake(state, direction, snakeDots, setSnakeDots) {
   if (state) {
     let dots = [...snakeDots];
     let head = dots[dots.length - 1];
+    const [top, left] = head;
 
     switch (direction) {
       case "RIGHT":
-        head = [head[0], head[1] + 2];
+        head = [top, left + 2];
         break;
       case "LEFT":
-        head = [head[0], head[1] - 2];
+        head = [top, left - 2];
         break;
       case "DOWN":
-        head = [head[0] + 2, head[1]];
+        head = [top + 2, left];
         break;
       case "UP":
-        head = [head[0] - 2, head[1]];
+        head = [top - 2, left];
         break;
       default:
         break;
@@ -50,7 +59,7 @@ export function checkCollision(gameParams, onGameOver) {
 
 function checkCoordinateCollisionWithSnake(coordinates, snakeDots) {
   for (let dot of snakeDots) {
-    if (dot[0] === coordinates[0] && dot[1] === coordinates[1]) {
+    if ( dot[0] === coordinates[0] && dot[1] === coordinates[1]) {
       return true;
     }
   }
@@ -67,12 +76,15 @@ function checkIfEat(gameParams) {
     gameParams.setPoint(gameParams.point + 10);
   }
 
-  if (
-    gameParams.dangerDot &&
-    head[0] === gameParams.dangerDot[0] &&
-    head[1] === gameParams.dangerDot[1]
-  ) {
-    gameParams.setDangerDot((prev) => (prev = null));
+  let dangerCollidedIndex = gameParams.dangerDots?.findIndex(
+    (dangerDot) => dangerDot[0] === head[0] && dangerDot[1] === head[1]
+  );
+
+  if (dangerCollidedIndex > -1) {
+    gameParams.setDangerDots((prev) => [
+      ...prev.slice(0, dangerCollidedIndex),
+      ...prev.slice(dangerCollidedIndex + 1),
+    ]);
     gameParams.setPoint(gameParams.point - 10);
   }
 }
