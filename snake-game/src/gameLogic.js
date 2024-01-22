@@ -11,7 +11,7 @@ export function getRandomCoordinates(snakeDots) {
   } while (checkCoordinateCollisionWithSnake([x, y], snakeDots));
 
   return [x, y];
-};
+}
 
 export function moveSnake(state, direction, snakeDots, setSnakeDots) {
   if (state) {
@@ -38,7 +38,7 @@ export function moveSnake(state, direction, snakeDots, setSnakeDots) {
     dots.shift();
     setSnakeDots(dots);
   }
-};
+}
 
 export function checkCollision(gameParams, onGameOver) {
   let currentHead = gameParams.snakeDots[gameParams.snakeDots.length - 1];
@@ -46,7 +46,7 @@ export function checkCollision(gameParams, onGameOver) {
   checkIfEat(gameParams);
   checkIfOutOfBorders(gameParams, onGameOver);
   checkIfCollapsed(gameParams, currentHead, onGameOver);
-};
+}
 
 function checkCoordinateCollisionWithSnake(coordinates, snakeDots) {
   for (let dot of snakeDots) {
@@ -65,6 +65,15 @@ function checkIfEat(gameParams) {
     enlargeSnake(gameParams);
     increaseSpeed(gameParams);
     gameParams.setPoint(gameParams.point + 10);
+  }
+
+  if (
+    gameParams.dangerDot &&
+    head[0] === gameParams.dangerDot[0] &&
+    head[1] === gameParams.dangerDot[1]
+  ) {
+    gameParams.setDangerDot((prev) => (prev = null));
+    gameParams.setPoint(gameParams.point - 10);
   }
 }
 
