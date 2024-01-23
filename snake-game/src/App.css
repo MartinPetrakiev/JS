@@ -51,28 +51,23 @@
 
 .food-item {
   position: absolute;
-	background: tomato;
+	fill: tomato;
 	height: 32px;
 	width: 32px;
-	border-radius: 50%;
-	z-index: 1;
 }
 
 .danger-item {
   position: absolute;
-	background: black;
+	fill: black;
 	height: 32px;
 	width: 32px;
-	border-radius: 50%;
-	z-index: 1;
 }
 
 .snake-item {
   position: absolute;
 	height: 32px;
 	width: 32px;
-	background: mediumseagreen;
-  z-index: 2;
+	fill: mediumseagreen;
 }
 
 .instructions {

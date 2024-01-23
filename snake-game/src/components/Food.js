@@ -2,9 +2,11 @@ import React from "react";
 
 function Food(props) {
   return (
-    <div
+    <circle 
       className="food-item"
-      style={{ top: `${props.foodDot[0]}rem`, left: `${props.foodDot[1]}rem` }}
+      cx={`${props.foodDot[1] + 1}rem`}
+      cy={`${props.foodDot[0] + 1}rem`}
+      r="1rem"
     />
   );
 }

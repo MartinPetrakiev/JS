@@ -2,9 +2,11 @@ import React from "react";
 
 function DangerItem(props) {
   return (
-    <div
+    <circle
       className="danger-item"
-      style={{ top: `${props.dangerDot[0]}rem`, left: `${props.dangerDot[1]}rem` }}
+      cx={`${props.dangerDot[1] + 1}rem`}
+      cy={`${props.dangerDot[0] + 1}rem`}
+      r="1rem"
     />
   );
 }

@@ -19,7 +19,7 @@ function App() {
   ];
   const [snakeDots, setSnakeDots] = useState(initialSnakeDots);
   const [foodDot, setFoodDot] = useState(
-    getRandomCoordinates(initialSnakeDots),
+    getRandomCoordinates(initialSnakeDots)
   );
   const [moveDirection, setMoveDirection] = useState("RIGHT");
   const [alive, setAlive] = useState(false);
@@ -29,7 +29,7 @@ function App() {
   const [isPaused, setIsPaused] = useState(true);
   const [dangerDots, setDangerDots] = useState([]);
   const [gameHistory, setGameHistory] = useState(
-    JSON.parse(localStorage.getItem("gameHistory")) || [],
+    JSON.parse(localStorage.getItem("gameHistory")) || []
   );
 
   useEffect(() => {
@@ -52,7 +52,7 @@ function App() {
             dangerDots,
             setDangerDots,
           },
-          onGameOver,
+          onGameOver
         );
       }, speed);
     }
@@ -155,14 +155,16 @@ function App() {
           <div className="box">
             <span className="content">{score}</span>
           </div>
-          <div className="wrapper">
-            <Snake snakeDots={snakeDots} />
-            <Food foodDot={foodDot} />
-            {dangerDots.length > 0 &&
-              dangerDots.map((dangerDot, index) => (
-                <DangerItem dangerDot={dangerDot} />
-              ))}
-          </div>
+          <svg className="wrapper">
+            <g>
+              <Food foodDot={foodDot} />
+              {dangerDots.length > 0 &&
+                dangerDots.map((dangerDot, index) => (
+                  <DangerItem dangerDot={dangerDot} />
+                ))}
+              <Snake snakeDots={snakeDots} />
+            </g>
+          </svg>
         </div>
       ) : (
         <div>
