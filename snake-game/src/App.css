@@ -35,9 +35,8 @@
 
 .wrapper {
   position: relative;
-  padding: 16px 16px;
-  height: 640px;
-  width: 640px;
+  height: 40rem;
+  width: 40rem;
   background: darkslategrey; 
 }
 

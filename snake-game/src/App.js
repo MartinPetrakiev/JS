@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 import Snake from "./components/Snake";
 import Food from "./components/Food";
 import "./App.css";
-import { getRandomCoordinates, moveSnake, checkCollision, KEYBOARD_KEYS } from "./gameLogic";
+import {
+  getRandomCoordinates,
+  moveSnake,
+  checkCollision,
+  KEYBOARD_KEYS,
+} from "./gameLogic";
 import DangerItem from "./components/DangerItem";
 
 function App() {
@@ -14,17 +19,17 @@ function App() {
   ];
   const [snakeDots, setSnakeDots] = useState(initialSnakeDots);
   const [foodDot, setFoodDot] = useState(
-    getRandomCoordinates(initialSnakeDots)
+    getRandomCoordinates(initialSnakeDots),
   );
-  const [direction, setDirection] = useState("RIGHT");
+  const [moveDirection, setMoveDirection] = useState("RIGHT");
   const [alive, setAlive] = useState(false);
-  const [speed, setSpeed] = useState(300);
+  const [speed, setSpeed] = useState(200);
   const [startButtonName, setStartButtonName] = useState("Play");
-  const [point, setPoint] = useState(0);
+  const [score, setScore] = useState(0);
   const [isPaused, setIsPaused] = useState(true);
   const [dangerDots, setDangerDots] = useState([]);
   const [gameHistory, setGameHistory] = useState(
-    JSON.parse(localStorage.getItem("gameHistory")) || []
+    JSON.parse(localStorage.getItem("gameHistory")) || [],
   );
 
   useEffect(() => {
@@ -32,22 +37,22 @@ function App() {
     let run;
     if (!isPaused) {
       run = setInterval(() => {
-        moveSnake(alive, direction, snakeDots, setSnakeDots);
+        moveSnake(alive, moveDirection, snakeDots, setSnakeDots);
         checkCollision(
           {
-            direction,
+            moveDirection,
             snakeDots,
             setSnakeDots,
             foodDot,
             setFoodDot,
             speed,
             setSpeed,
-            point,
-            setPoint,
+            score,
+            setScore,
             dangerDots,
-            setDangerDots
+            setDangerDots,
           },
-          onGameOver
+          onGameOver,
         );
       }, speed);
     }
@@ -57,19 +62,22 @@ function App() {
     };
   }, [
     isPaused,
-    direction,
+    moveDirection,
     snakeDots,
     alive,
     foodDot,
     speed,
-    point,
+    score,
     onGameOver,
   ]);
 
   useEffect(() => {
     const dangerDotGenerate = setTimeout(() => {
       if (!isPaused) {
-        setDangerDots((prev) => [...prev, getRandomCoordinates(snakeDots)]);
+        setDangerDots((prev) => [
+          ...prev,
+          getRandomCoordinates(snakeDots, foodDot, prev),
+        ]);
       }
     }, 5000);
 
@@ -79,26 +87,26 @@ function App() {
   }, [dangerDots, isPaused]);
 
   useEffect(() => {
-    if (!isPaused && (dangerDots.length > 10 || point % 50 === 0)) {
+    if (!isPaused && score % 50 === 0) {
       setDangerDots([]);
     }
-  },  [point])
+  }, [score]);
 
   function onKeyDown(e) {
     const { UP, DOWN, LEFT, RIGHT, PAUSE } = KEYBOARD_KEYS;
 
     switch (e.keyCode) {
       case UP:
-        !isPaused && setDirection("UP");
+        !isPaused && setMoveDirection("UP");
         break;
       case DOWN:
-        !isPaused && setDirection("DOWN");
+        !isPaused && setMoveDirection("DOWN");
         break;
       case LEFT:
-        !isPaused && setDirection("LEFT");
+        !isPaused && setMoveDirection("LEFT");
         break;
       case RIGHT:
-        !isPaused && setDirection("RIGHT");
+        !isPaused && setMoveDirection("RIGHT");
         break;
       case PAUSE:
         !isPaused ? setIsPaused(true) : setIsPaused(false);
@@ -117,10 +125,10 @@ function App() {
       [2, 8],
     ]);
     setFoodDot([10, 10]);
-    setDirection("RIGHT");
+    setMoveDirection("RIGHT");
     setIsPaused(true);
 
-    const currentGame = { score: point, timestamp: new Date().toISOString() };
+    const currentGame = { score: score, timestamp: new Date().toISOString() };
     const updatedHistory = [...gameHistory, currentGame];
 
     localStorage.setItem("gameHistory", JSON.stringify(updatedHistory));
@@ -130,9 +138,9 @@ function App() {
   }
 
   function rePlay() {
-    setDirection("RIGHT");
+    setMoveDirection("RIGHT");
     setStartButtonName("Play again");
-    setPoint(0);
+    setScore(0);
     setAlive(true);
     setDangerDots([]);
     setIsPaused(false);
@@ -145,14 +153,14 @@ function App() {
       {alive ? (
         <div>
           <div className="box">
-            <span className="content">{point}</span>
+            <span className="content">{score}</span>
           </div>
           <div className="wrapper">
             <Snake snakeDots={snakeDots} />
             <Food foodDot={foodDot} />
             {dangerDots.length > 0 &&
-              dangerDots.map((dangerDot,index) => (
-                <DangerItem key={index} dangerDot={dangerDot} />
+              dangerDots.map((dangerDot, index) => (
+                <DangerItem dangerDot={dangerDot} />
               ))}
           </div>
         </div>
@@ -168,7 +176,7 @@ function App() {
             time by pressing <span className="key-symbol">space</span> key.
           </div>
           <div className="box">
-            <span className="content">Your points: {point}</span>
+            <span className="content">Your points: {score}</span>
             {gameHistory.length > 0 && (
               <ul className="game-hitory">
                 {gameHistory.length > 0 &&
