@@ -10,7 +10,11 @@ export const KEYBOARD_KEYS = {
   PAUSE: 32,
 };
 
-export function getRandomCoordinates(snakeDots, foodDot, dangerDots) {
+export function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function getRandomCoordinates(snakeDots, foodDots, dangerDots) {
   let min = BOARD_MIN + 1;
   let max = BOARD_MAX - 2;
   let x, y;
@@ -18,12 +22,7 @@ export function getRandomCoordinates(snakeDots, foodDot, dangerDots) {
     x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
     y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
   } while (
-    checkCollisionWithOtherObjects(
-      [x, y],
-      snakeDots,
-      foodDot,
-      dangerDots
-    )
+    checkCollisionWithOtherObjects([x, y], snakeDots, foodDots, dangerDots)
   );
 
   return [x, y];
@@ -68,27 +67,22 @@ export function checkCollision(gameParams, onGameOver) {
 function checkCollisionWithOtherObjects(
   [inputTop, inputLeft],
   snakeDots,
-  foodDot,
+  foodDots,
   dangerDots
 ) {
-  if (foodDot) {
-    const [foodTop, foodLeft] = foodDot;
-    if (inputTop === foodTop && inputLeft === foodLeft) {
-      return true;
-    }
-  }
-
   for (let [dotTop, dotLeft] of snakeDots) {
     if (dotTop === inputTop && dotLeft === inputLeft) {
       return true;
     }
   }
 
-  if (dangerDots) {
-    for (let [dotTop, dotLeft] of dangerDots) {
-      if (dotTop === inputTop && dotLeft === inputLeft) {
-        return true;
-      }
+  if (!foodDots || !dangerDots) {
+    return false;
+  }
+
+  for (let [dotTop, dotLeft] of dangerDots) {
+    if (dotTop === inputTop && dotLeft === inputLeft) {
+      return true;
     }
   }
 
@@ -98,12 +92,20 @@ function checkCollisionWithOtherObjects(
 function checkIfEat(gameParams) {
   let head = gameParams.snakeDots[gameParams.snakeDots.length - 1];
   const [topPosition, leftPosition] = head;
-  const {
-    foodDot: [foodTop, foodLeft],
-  } = gameParams;
 
-  if (topPosition === foodTop && leftPosition === foodLeft) {
-    gameParams.setFoodDot(getRandomCoordinates(gameParams.snakeDots));
+  let foodCollidedIndex = gameParams.foodDots?.findIndex(
+    (foodDot) => foodDot[0] === topPosition && foodDot[1] === leftPosition
+  );
+
+  if (foodCollidedIndex > -1) {
+    gameParams.setFoodDots((prev) => [
+      ...prev.slice(0, foodCollidedIndex),
+      ...prev.slice(foodCollidedIndex + 1),
+    ]);
+    gameParams.setFoodDots((prev) => [
+      ...prev,
+      getRandomCoordinates(gameParams.snakeDots, gameParams.foodDots),
+    ]);
     enlargeSnake(gameParams);
     increaseSpeed(gameParams);
     gameParams.setScore((prevScore) => prevScore + 10);

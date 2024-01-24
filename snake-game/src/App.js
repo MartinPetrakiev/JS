@@ -18,9 +18,7 @@ function App() {
     [2, 8],
   ];
   const [snakeDots, setSnakeDots] = useState(initialSnakeDots);
-  const [foodDot, setFoodDot] = useState(
-    getRandomCoordinates(initialSnakeDots)
-  );
+  const [foodDots, setFoodDots] = useState([]);
   const [moveDirection, setMoveDirection] = useState("RIGHT");
   const [alive, setAlive] = useState(false);
   const [speed, setSpeed] = useState(200);
@@ -43,8 +41,8 @@ function App() {
             moveDirection,
             snakeDots,
             setSnakeDots,
-            foodDot,
-            setFoodDot,
+            foodDots,
+            setFoodDots,
             speed,
             setSpeed,
             score,
@@ -65,7 +63,7 @@ function App() {
     moveDirection,
     snakeDots,
     alive,
-    foodDot,
+    foodDots,
     speed,
     score,
     onGameOver,
@@ -76,7 +74,7 @@ function App() {
       if (!isPaused) {
         setDangerDots((prev) => [
           ...prev,
-          getRandomCoordinates(snakeDots, foodDot, prev),
+          getRandomCoordinates(snakeDots, foodDots, prev),
         ]);
       }
     }, 5000);
@@ -87,10 +85,31 @@ function App() {
   }, [dangerDots, isPaused]);
 
   useEffect(() => {
+    const foodDotGenerate = setTimeout(() => {
+      if (!isPaused) {
+        setFoodDots((prev) => [
+          ...prev,
+          getRandomCoordinates(snakeDots, prev, dangerDots),
+        ]);
+      }
+    }, 5000);
+
+    return () => {
+      clearTimeout(foodDotGenerate);
+    };
+  }, [foodDots, isPaused]);
+
+  useEffect(() => {
     if (!isPaused && score % 50 === 0) {
       setDangerDots([]);
     }
   }, [score]);
+
+  useEffect(() => {
+    if (!isPaused && foodDots.length > 6) {
+      setFoodDots((prev) => [...prev.slice(prev.length - 2)])
+    }
+  }, [foodDots])
 
   function onKeyDown(e) {
     const { UP, DOWN, LEFT, RIGHT, PAUSE } = KEYBOARD_KEYS;
@@ -124,7 +143,7 @@ function App() {
       [2, 6],
       [2, 8],
     ]);
-    setFoodDot([10, 10]);
+    setFoodDots([10, 10]);
     setMoveDirection("RIGHT");
     setIsPaused(true);
 
@@ -143,6 +162,7 @@ function App() {
     setScore(0);
     setAlive(true);
     setDangerDots([]);
+    setFoodDots([]);
     setIsPaused(false);
   }
 
@@ -157,10 +177,13 @@ function App() {
           </div>
           <svg className="wrapper">
             <g>
-              <Food foodDot={foodDot} />
+              {foodDots.length > 0 &&
+                foodDots.map((foodDot, index) => (
+                  <Food key={index} foodDot={foodDot} />
+                ))}
               {dangerDots.length > 0 &&
                 dangerDots.map((dangerDot, index) => (
-                  <DangerItem dangerDot={dangerDot} />
+                  <DangerItem key={index} dangerDot={dangerDot} />
                 ))}
               <Snake snakeDots={snakeDots} />
             </g>

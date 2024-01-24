@@ -51,9 +51,9 @@
 
 .food-item {
   position: absolute;
-	fill: tomato;
-	height: 32px;
-	width: 32px;
+	fill: yellow;
+	width: 200px;
+	height: 200px;
 }
 
 .danger-item {
@@ -63,11 +63,22 @@
 	width: 32px;
 }
 
+.snake-head {
+	fill: green;
+}
+
+.snake-tail {
+  fill: lime;
+}
+
+.snake-body {
+  fill: mediumseagreen;
+}
+
 .snake-item {
   position: absolute;
 	height: 32px;
 	width: 32px;
-	fill: mediumseagreen;
 }
 
 .instructions {
