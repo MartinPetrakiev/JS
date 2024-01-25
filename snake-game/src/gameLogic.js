@@ -1,29 +1,28 @@
-const BOARD_MIN = 0;
-const BOARD_MAX = 40;
-const SNAKE_DOT_SIZE = 2;
+import {
+  BOARD_MIN,
+  BOARD_MAX,
+  SNAKE_DOT_SIZE,
+  OBSTACLE_SIZE,
+} from "./constants";
 
-export const KEYBOARD_KEYS = {
-  UP: 38,
-  DOWN: 40,
-  LEFT: 37,
-  RIGHT: 39,
-  PAUSE: 32,
-};
-
-export function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-export function getRandomCoordinates(snakeDots, foodDots, dangerDots) {
+export function getRandomCoordinates(snakeDots, foodDots) {
   let min = BOARD_MIN + 1;
   let max = BOARD_MAX - 2;
   let x, y;
   do {
     x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
     y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
-  } while (
-    checkCollisionWithOtherObjects([x, y], snakeDots, foodDots, dangerDots)
-  );
+  } while (checkCollisionWithOtherObjects([x, y], snakeDots, foodDots));
+
+  return [x, y];
+}
+
+export function generateRandomObstacle(snakeDots, foodDots) {
+  let x, y;
+  do {
+    x = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
+    y = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
+  } while (checkCollisionWithOtherObjects([x, y], snakeDots, foodDots));
 
   return [x, y];
 }
@@ -57,30 +56,41 @@ export function moveSnake(isAlive, moveDirection, snakeDots, setSnakeDots) {
 }
 
 export function checkCollision(gameParams, onGameOver) {
-  let currentHead = gameParams.snakeDots[gameParams.snakeDots.length - 1];
+  const { snakeDots, foodDots } = gameParams;
+  let currentHead = snakeDots[snakeDots.length - 1];
 
   checkIfEat(gameParams);
-  checkIfOutOfBoard(gameParams, onGameOver);
+  onOutOfBounds(gameParams, onGameOver);
   checkIfSelfCollapsed(gameParams, currentHead, onGameOver);
+  if (
+    checkCollisionWithOtherObjects(
+      currentHead,
+      snakeDots.slice(0,snakeDots.length - 1),
+      foodDots
+    )
+  ) {
+    console.log("ue");
+    // onGameOver();
+  }
 }
 
 function checkCollisionWithOtherObjects(
   [inputTop, inputLeft],
   snakeDots,
-  foodDots,
-  dangerDots
+  foodDots
 ) {
   for (let [dotTop, dotLeft] of snakeDots) {
     if (dotTop === inputTop && dotLeft === inputLeft) {
+      console.log("be");
       return true;
     }
   }
 
-  if (!foodDots || !dangerDots) {
+  if (!foodDots) {
     return false;
   }
 
-  for (let [dotTop, dotLeft] of dangerDots) {
+  for (let [dotTop, dotLeft] of foodDots) {
     if (dotTop === inputTop && dotLeft === inputLeft) {
       return true;
     }
@@ -110,30 +120,29 @@ function checkIfEat(gameParams) {
     increaseSpeed(gameParams);
     gameParams.setScore((prevScore) => prevScore + 10);
   }
-
-  let dangerCollidedIndex = gameParams.dangerDots?.findIndex(
-    (dangerDot) => dangerDot[0] === topPosition && dangerDot[1] === leftPosition
-  );
-
-  if (dangerCollidedIndex > -1) {
-    gameParams.setDangerDots((prev) => [
-      ...prev.slice(0, dangerCollidedIndex),
-      ...prev.slice(dangerCollidedIndex + 1),
-    ]);
-    gameParams.setScore((prevScore) => prevScore - 10);
-  }
 }
 
-function checkIfOutOfBoard(gameParams, onGameOver) {
-  let [topPosition, leftPosition] =
-    gameParams.snakeDots[gameParams.snakeDots.length - 1];
-  if (
-    topPosition === BOARD_MAX ||
-    leftPosition === BOARD_MAX ||
-    topPosition < BOARD_MIN ||
-    leftPosition < BOARD_MIN
-  ) {
-    onGameOver();
+function onOutOfBounds(gameParams) {
+  let [x, y] = gameParams.snakeDots[gameParams.snakeDots.length - 1];
+  if (x >= BOARD_MAX || y >= BOARD_MAX || x < BOARD_MIN || y < BOARD_MIN) {
+    let newX = x;
+    let newY = y;
+
+    if (x >= BOARD_MAX) {
+      newX = BOARD_MIN;
+    } else if (y >= BOARD_MAX) {
+      newY = BOARD_MIN;
+    }
+
+    if (x < BOARD_MIN) {
+      newX = BOARD_MAX - 2;
+    } else if (y < BOARD_MIN) {
+      newY = BOARD_MAX - 2;
+    }
+
+    const newSnakeDots = [...gameParams.snakeDots];
+    newSnakeDots[newSnakeDots.length - 1] = [newX, newY];
+    gameParams.setSnakeDots(newSnakeDots);
   }
 }
 
@@ -173,6 +182,6 @@ function enlargeSnake({ snakeDots, setSnakeDots, moveDirection }) {
     default:
       break;
   }
-  const newSnake = [newDot, ...snakeDots];
+  const newSnake = [...snakeDots, newDot];
   setSnakeDots(newSnake);
 }

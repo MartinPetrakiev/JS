@@ -1,38 +1,35 @@
 import { useState, useEffect } from "react";
-import Snake from "./components/Snake";
-import Food from "./components/Food";
 import "./App.css";
-import {
-  getRandomCoordinates,
-  moveSnake,
-  checkCollision,
-  KEYBOARD_KEYS,
-} from "./gameLogic";
-import DangerItem from "./components/DangerItem";
+import { getRandomCoordinates, moveSnake, checkCollision, generateRandomObstacle } from "./gameLogic";
+import GameInstructions from "./components/GameInstructions";
+import ScoreBoard from "./components/ScoreBoard";
+import Level1 from "./components/Levels/Level1";
+import { generateRandomCoordinates, onKeyDown } from "./utils";
+import { INITIAL_SNAKE_DOTS } from "./constants";
+import Level2 from "./components/Levels/Level2";
 
 function App() {
-  const initialSnakeDots = [
-    [2, 2],
-    [2, 4],
-    [2, 6],
-    [2, 8],
-  ];
-  const [snakeDots, setSnakeDots] = useState(initialSnakeDots);
-  const [foodDots, setFoodDots] = useState([]);
+  const [snakeDots, setSnakeDots] = useState(INITIAL_SNAKE_DOTS);
+  const [foodDots, setFoodDots] = useState([
+    getRandomCoordinates(INITIAL_SNAKE_DOTS, []),
+  ]);
+  const [obstacles, setObstacles] = useState([]);
   const [moveDirection, setMoveDirection] = useState("RIGHT");
   const [alive, setAlive] = useState(false);
   const [speed, setSpeed] = useState(200);
   const [startButtonName, setStartButtonName] = useState("Play");
   const [score, setScore] = useState(0);
   const [isPaused, setIsPaused] = useState(true);
-  const [dangerDots, setDangerDots] = useState([]);
   const [gameHistory, setGameHistory] = useState(
     JSON.parse(localStorage.getItem("gameHistory")) || []
   );
 
   useEffect(() => {
-    document.onkeydown = onKeyDown;
+    document.onkeydown = (e) =>
+      onKeyDown(e, isPaused, setMoveDirection, setIsPaused);
+
     let run;
+
     if (!isPaused) {
       run = setInterval(() => {
         moveSnake(alive, moveDirection, snakeDots, setSnakeDots);
@@ -47,8 +44,6 @@ function App() {
             setSpeed,
             score,
             setScore,
-            dangerDots,
-            setDangerDots,
           },
           onGameOver
         );
@@ -70,27 +65,9 @@ function App() {
   ]);
 
   useEffect(() => {
-    const dangerDotGenerate = setTimeout(() => {
-      if (!isPaused) {
-        setDangerDots((prev) => [
-          ...prev,
-          getRandomCoordinates(snakeDots, foodDots, prev),
-        ]);
-      }
-    }, 5000);
-
-    return () => {
-      clearTimeout(dangerDotGenerate);
-    };
-  }, [dangerDots, isPaused]);
-
-  useEffect(() => {
     const foodDotGenerate = setTimeout(() => {
       if (!isPaused) {
-        setFoodDots((prev) => [
-          ...prev,
-          getRandomCoordinates(snakeDots, prev, dangerDots),
-        ]);
+        setFoodDots((prev) => [...prev, getRandomCoordinates(snakeDots, prev)]);
       }
     }, 5000);
 
@@ -100,40 +77,20 @@ function App() {
   }, [foodDots, isPaused]);
 
   useEffect(() => {
-    if (!isPaused && score % 50 === 0) {
-      setDangerDots([]);
+    if (!isPaused && foodDots.length > 6) {
+      setFoodDots((prev) => [...prev.slice(prev.length - 2)]);
     }
-  }, [score]);
+  }, [foodDots]);
 
   useEffect(() => {
-    if (!isPaused && foodDots.length > 6) {
-      setFoodDots((prev) => [...prev.slice(prev.length - 2)])
-    }
-  }, [foodDots])
+    const numberOfObstacles = 10;
 
-  function onKeyDown(e) {
-    const { UP, DOWN, LEFT, RIGHT, PAUSE } = KEYBOARD_KEYS;
+    const newObstacles = Array.from({ length: numberOfObstacles }, (_, index) =>
+      generateRandomObstacle(snakeDots, foodDots)
+    );
 
-    switch (e.keyCode) {
-      case UP:
-        !isPaused && setMoveDirection("UP");
-        break;
-      case DOWN:
-        !isPaused && setMoveDirection("DOWN");
-        break;
-      case LEFT:
-        !isPaused && setMoveDirection("LEFT");
-        break;
-      case RIGHT:
-        !isPaused && setMoveDirection("RIGHT");
-        break;
-      case PAUSE:
-        !isPaused ? setIsPaused(true) : setIsPaused(false);
-        break;
-      default:
-        break;
-    }
-  }
+    setObstacles(newObstacles);
+  }, []);
 
   function onGameOver() {
     setAlive(false);
@@ -161,7 +118,6 @@ function App() {
     setStartButtonName("Play again");
     setScore(0);
     setAlive(true);
-    setDangerDots([]);
     setFoodDots([]);
     setIsPaused(false);
   }
@@ -175,44 +131,14 @@ function App() {
           <div className="box">
             <span className="content">{score}</span>
           </div>
-          <svg className="wrapper">
-            <g>
-              {foodDots.length > 0 &&
-                foodDots.map((foodDot, index) => (
-                  <Food key={index} foodDot={foodDot} />
-                ))}
-              {dangerDots.length > 0 &&
-                dangerDots.map((dangerDot, index) => (
-                  <DangerItem key={index} dangerDot={dangerDot} />
-                ))}
-              <Snake snakeDots={snakeDots} />
-            </g>
-          </svg>
+          {/* <Level1 foodDots={foodDots} snakeDots={snakeDots} /> */}
+          <Level2 snakeDots={snakeDots} foodDots={foodDots} obstacles={obstacles} />
         </div>
       ) : (
         <div>
-          <div className="instructions">
-            Start the game by pressing the "Play" button. To move the snake use
-            the arrow keys on your keayboard
-            <span className="key-symbol">↑</span>{" "}
-            <span className="key-symbol">↓</span>{" "}
-            <span className="key-symbol">→</span>{" "}
-            <span className="key-symbol">←</span>. You can pause the game at any
-            time by pressing <span className="key-symbol">space</span> key.
-          </div>
+          <GameInstructions />
           <div className="box">
-            <span className="content">Your points: {score}</span>
-            {gameHistory.length > 0 && (
-              <ul className="game-hitory">
-                {gameHistory.length > 0 &&
-                  gameHistory.map((eachGame, index) => (
-                    <li key={index}>
-                      {index + 1}. Score: {eachGame.score} -{" "}
-                      {new Date(eachGame.timestamp).toLocaleString()}
-                    </li>
-                  ))}
-              </ul>
-            )}
+            <ScoreBoard score={score} gameHistory={gameHistory} />
             <button className="button" onClick={rePlay}>
               {startButtonName}
             </button>

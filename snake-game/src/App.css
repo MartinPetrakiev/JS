@@ -33,7 +33,7 @@
   color: darkslategrey;
 }
 
-.wrapper {
+.game-board {
   position: relative;
   height: 40rem;
   width: 40rem;
@@ -56,7 +56,7 @@
 	height: 200px;
 }
 
-.danger-item {
+.obstacle {
   position: absolute;
 	fill: black;
 	height: 32px;
@@ -110,6 +110,11 @@
   display: inline-block;
   transition: box-shadow 0.3s ease, transform 0.15s ease;
   box-shadow: 0 0 1px #888,0 1px 0 #fff, 0 6px 0 #C0C0C0, 0 8px 17px rgba(#444, 0.4), 2px 1px 4px rgba(#444, 0.25), -2px 1px 4px rgba(#444, 0.25), 0 9px 16px rgba(#444, 0.1);
+}
+
+.game-hitory {
+  max-height: 200px;
+  overflow-y: scroll;
 }
 
 .game-hitory li {
