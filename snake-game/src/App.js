@@ -117,6 +117,7 @@ function App() {
     setAlive(true);
     setFoodDots([getRandomCoordinates(INITIAL_SNAKE_DOTS)]);
     setIsPaused(false);
+    setSpeed(240);
   }
 
   return (
