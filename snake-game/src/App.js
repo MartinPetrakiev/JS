@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { getRandomCoordinates, moveSnake, checkCollision, generateRandomObstacle } from "./gameLogic";
+import {
+  getRandomCoordinates,
+  moveSnake,
+  checkCollision,
+  generateRandomObstacle,
+  advanceGameLevel,
+} from "./utils/gameLogic";
 import GameInstructions from "./components/GameInstructions";
 import ScoreBoard from "./components/ScoreBoard";
-import Level1 from "./components/Levels/Level1";
-import { generateRandomCoordinates, onKeyDown } from "./utils";
-import { INITIAL_SNAKE_DOTS } from "./constants";
-import Level2 from "./components/Levels/Level2";
+import { onKeyDown } from "./utils/utils";
+import { INITIAL_SNAKE_DOTS } from "./utils/constants";
+import GameBoard from "./components/GameBoard";
 
 function App() {
   const [snakeDots, setSnakeDots] = useState(INITIAL_SNAKE_DOTS);
@@ -16,10 +21,11 @@ function App() {
   const [obstacles, setObstacles] = useState([]);
   const [moveDirection, setMoveDirection] = useState("RIGHT");
   const [alive, setAlive] = useState(false);
-  const [speed, setSpeed] = useState(200);
+  const [speed, setSpeed] = useState(240);
   const [startButtonName, setStartButtonName] = useState("Play");
   const [score, setScore] = useState(0);
   const [isPaused, setIsPaused] = useState(true);
+  const [gameLevel, setGameLevel] = useState(1);
   const [gameHistory, setGameHistory] = useState(
     JSON.parse(localStorage.getItem("gameHistory")) || []
   );
@@ -44,9 +50,12 @@ function App() {
             setSpeed,
             score,
             setScore,
+            obstacles,
+            gameLevel,
           },
           onGameOver
         );
+        advanceGameLevel({ score, gameLevel, setGameLevel });
       }, speed);
     }
 
@@ -67,7 +76,10 @@ function App() {
   useEffect(() => {
     const foodDotGenerate = setTimeout(() => {
       if (!isPaused) {
-        setFoodDots((prev) => [...prev, getRandomCoordinates(snakeDots, prev)]);
+        setFoodDots((prev) => [
+          ...prev,
+          getRandomCoordinates(snakeDots, prev, obstacles),
+        ]);
       }
     }, 5000);
 
@@ -82,25 +94,10 @@ function App() {
     }
   }, [foodDots]);
 
-  useEffect(() => {
-    const numberOfObstacles = 10;
-
-    const newObstacles = Array.from({ length: numberOfObstacles }, (_, index) =>
-      generateRandomObstacle(snakeDots, foodDots)
-    );
-
-    setObstacles(newObstacles);
-  }, []);
-
   function onGameOver() {
     setAlive(false);
-    setSnakeDots([
-      [2, 2],
-      [2, 4],
-      [2, 6],
-      [2, 8],
-    ]);
-    setFoodDots([10, 10]);
+    setSnakeDots(INITIAL_SNAKE_DOTS);
+    setFoodDots(getRandomCoordinates(INITIAL_SNAKE_DOTS, [], obstacles));
     setMoveDirection("RIGHT");
     setIsPaused(true);
 
@@ -118,7 +115,7 @@ function App() {
     setStartButtonName("Play again");
     setScore(0);
     setAlive(true);
-    setFoodDots([]);
+    setFoodDots([getRandomCoordinates(INITIAL_SNAKE_DOTS)]);
     setIsPaused(false);
   }
 
@@ -131,8 +128,13 @@ function App() {
           <div className="box">
             <span className="content">{score}</span>
           </div>
-          {/* <Level1 foodDots={foodDots} snakeDots={snakeDots} /> */}
-          <Level2 snakeDots={snakeDots} foodDots={foodDots} obstacles={obstacles} />
+          <GameBoard
+            snakeDots={snakeDots}
+            foodDots={foodDots}
+            obstacles={obstacles}
+            setObstacles={setObstacles}
+            gameLevel={gameLevel}
+          />
         </div>
       ) : (
         <div>

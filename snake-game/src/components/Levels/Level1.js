@@ -1,14 +1,14 @@
 import React from "react";
-import Snake from "../Snake";
+import Snake from "../Snake/Snake";
 import Food from "../Food";
 
-function Level1({foodDots, snakeDots}) {
+function Level1({ foodDots, snakeDots }) {
   return (
     <svg className="game-board">
       <g>
         {foodDots.length > 0 &&
-          foodDots.map((foodDot, index) => (
-            <Food key={index} foodDot={foodDot} />
+          foodDots.map(([x, y], index) => (
+            <Food key={index + "f"} x={x} y={y} />
           ))}
         <Snake snakeDots={snakeDots} />
       </g>

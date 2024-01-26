@@ -1,13 +1,13 @@
 import React from "react";
 import FoodItem from "./FoodItem";
 
-function Food(props) {
+function Food({x, y}) {
   return (
     <svg
       className="food-item"
       viewBox="0 0 1110 1110"
-      x={`${props?.foodDot[1]}rem`}
-      y={`${props?.foodDot[0]}rem`}
+      x={`${x}rem`}
+      y={`${y}rem`}
     >
       <FoodItem />
     </svg>

@@ -1,20 +1,20 @@
-import { BOARD_MAX, KEYBOARD_KEYS, OBSTACLE_SIZE } from "./constants";
+import { KEYBOARD_KEYS, MOVE_DIRECTIONS } from "./constants";
 
 export function onKeyDown(e, isPaused, setMoveDirection, setIsPaused) {
   const { UP, DOWN, LEFT, RIGHT, PAUSE } = KEYBOARD_KEYS;
 
   switch (e.keyCode) {
     case UP:
-      !isPaused && setMoveDirection("UP");
+      !isPaused && setMoveDirection(MOVE_DIRECTIONS.UP);
       break;
     case DOWN:
-      !isPaused && setMoveDirection("DOWN");
+      !isPaused && setMoveDirection(MOVE_DIRECTIONS.DOWN);
       break;
     case LEFT:
-      !isPaused && setMoveDirection("LEFT");
+      !isPaused && setMoveDirection(MOVE_DIRECTIONS.LEFT);
       break;
     case RIGHT:
-      !isPaused && setMoveDirection("RIGHT");
+      !isPaused && setMoveDirection(MOVE_DIRECTIONS.RIGHT);
       break;
     case PAUSE:
       !isPaused ? setIsPaused(true) : setIsPaused(false);
