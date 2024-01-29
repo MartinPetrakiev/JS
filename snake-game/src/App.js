@@ -4,7 +4,6 @@ import {
   getRandomCoordinates,
   moveSnake,
   checkCollision,
-  generateRandomObstacle,
   advanceGameLevel,
 } from "./utils/gameLogic";
 import GameInstructions from "./components/GameInstructions";

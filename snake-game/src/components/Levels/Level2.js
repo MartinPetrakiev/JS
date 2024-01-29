@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import Snake from "../Snake/Snake";
 import Food from "../Food";
 import Obstacle from "../Obstacle";
