@@ -11,11 +11,12 @@ import { onKeyDown } from "./utils/utils";
 import { INITIAL_SNAKE_DOTS } from "./utils/constants";
 import GameBoard from "./components/GameBoard";
 import GameStartScreen from "./components/GameStartScreen";
+import { v4 as uuidv4 } from "uuid";
 
 function App() {
   const [snakeDots, setSnakeDots] = useState(INITIAL_SNAKE_DOTS);
   const [foodDots, setFoodDots] = useState([
-    getRandomCoordinates(INITIAL_SNAKE_DOTS, []),
+    { key: uuidv4(), x: 10, y: 10  },
   ]);
   const [obstacles, setObstacles] = useState([]);
   const [moveDirection, setMoveDirection] = useState("RIGHT");
@@ -86,16 +87,25 @@ function App() {
     score,
     gameLevel,
     gameHistory,
-    startButtonName
+    startButtonName,
   ]);
 
   useEffect(() => {
     const foodDotGenerate = setTimeout(() => {
       if (!isPaused) {
-        setFoodDots((prev) => [
-          ...prev,
-          getRandomCoordinates(snakeDots, prev, obstacles),
-        ]);
+        
+        setFoodDots((prev) => {
+          const [randomX, randomY] = getRandomCoordinates(snakeDots, prev, obstacles);
+          return [
+            ...prev,
+            {
+              key: uuidv4(),
+              x: randomX,
+              y: randomY
+            },
+          ]
+        });
+        console.log(foodDots)
       }
     }, 5000);
 

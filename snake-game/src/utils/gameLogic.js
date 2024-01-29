@@ -6,6 +6,7 @@ import {
   MOVE_DIRECTIONS,
   INITIAL_SNAKE_DOTS,
 } from "./constants";
+import { v4 as uuidv4 } from "uuid";
 
 export function getRandomCoordinates(snakeDots, foodDots, obstacles) {
   let min = BOARD_MIN + 1;
@@ -85,7 +86,16 @@ export function rePlay(gameStateSetters) {
   gameStateSetters.setStartButtonName("Play again");
   gameStateSetters.setScore(0);
   gameStateSetters.setAlive(true);
-  gameStateSetters.setFoodDots([getRandomCoordinates(INITIAL_SNAKE_DOTS)]);
+
+  const [randomX, randomY] = getRandomCoordinates(INITIAL_SNAKE_DOTS, []);
+  gameStateSetters.setFoodDots([
+    {
+      key: uuidv4(),
+      x: randomX,
+      y: randomY,
+    },
+  ]);
+
   gameStateSetters.setIsPaused(false);
   gameStateSetters.setSpeed(240);
 }
@@ -153,7 +163,7 @@ function checkCollisionOnObjectBuild(
     return false;
   }
 
-  for (let [dotTop, dotLeft] of foodDots) {
+  for (let { dotTop, dotLeft } of foodDots) {
     if (dotTop === inputTop && dotLeft === inputLeft) {
       return true;
     }
@@ -175,18 +185,13 @@ function checkIfEat(gameParams, gameStateSetters) {
   const [headY, headX] = head;
 
   let foodCollidedIndex = gameParams.foodDots?.findIndex(
-    ([foodX, foodY]) => foodX === headX && foodY === headY
+    ({x: foodX, y: foodY}) => foodX === headX && foodY === headY
   );
 
   if (foodCollidedIndex > -1) {
     gameStateSetters.setFoodDots((prev) => [
       ...prev.slice(0, foodCollidedIndex),
       ...prev.slice(foodCollidedIndex + 1),
-    ]);
-
-    gameStateSetters.setFoodDots((prev) => [
-      ...prev,
-      getRandomCoordinates(gameParams.snakeDots, gameParams.foodDots),
     ]);
 
     enlargeSnake(gameParams, gameStateSetters.setSnakeDots);
@@ -241,9 +246,7 @@ function checkIfSelfCollapsed(gameParams, head, gameStateSetters) {
 
 function increaseSpeed({ speed, gameLevel }, setSpeed) {
   if (speed > 10) {
-    setSpeed((prevSpeed) =>
-      gameLevel === 2 ? prevSpeed - 5 : prevSpeed - 10
-    );
+    setSpeed((prevSpeed) => (gameLevel === 2 ? prevSpeed - 5 : prevSpeed - 10));
   }
 }
 
