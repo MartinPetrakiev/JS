@@ -112,11 +112,21 @@
   box-shadow: 0 0 1px #888,0 1px 0 #fff, 0 6px 0 #C0C0C0, 0 8px 17px rgba(#444, 0.4), 2px 1px 4px rgba(#444, 0.25), -2px 1px 4px rgba(#444, 0.25), 0 9px 16px rgba(#444, 0.1);
 }
 
-.game-hitory {
-  max-height: 200px;
-  overflow-y: scroll;
+.game-history {
+  max-height: 220px;
+  width: 60%;
+  overflow-y: auto;
+  border: 1px solid gray;
+  border-radius: 5px;
 }
 
-.game-hitory li {
-  list-style-type: none;
+.game-history table {
+  border-collapse: collapse;
+  width: 70%;
+  text-align: center;
+  margin: 10px auto;
+}
+
+.game-history table tr td {
+  padding: 10px;
 }

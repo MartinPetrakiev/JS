@@ -5,12 +5,12 @@ import {
   moveSnake,
   checkCollision,
   advanceGameLevel,
+  rePlay,
 } from "./utils/gameLogic";
-import GameInstructions from "./components/GameInstructions";
-import ScoreBoard from "./components/ScoreBoard";
 import { onKeyDown } from "./utils/utils";
 import { INITIAL_SNAKE_DOTS } from "./utils/constants";
 import GameBoard from "./components/GameBoard";
+import GameStartScreen from "./components/GameStartScreen";
 
 function App() {
   const [snakeDots, setSnakeDots] = useState(INITIAL_SNAKE_DOTS);
@@ -38,23 +38,37 @@ function App() {
     if (!isPaused) {
       run = setInterval(() => {
         moveSnake(alive, moveDirection, snakeDots, setSnakeDots);
+
         checkCollision(
           {
-            moveDirection,
             snakeDots,
-            setSnakeDots,
             foodDots,
-            setFoodDots,
-            speed,
-            setSpeed,
-            score,
-            setScore,
             obstacles,
+            moveDirection,
+            alive,
+            speed,
+            startButtonName,
+            score,
+            isPaused,
             gameLevel,
+            gameHistory,
           },
-          onGameOver
+          {
+            setSnakeDots,
+            setFoodDots,
+            setObstacles,
+            setMoveDirection,
+            setAlive,
+            setSpeed,
+            setStartButtonName,
+            setScore,
+            setIsPaused,
+            setGameLevel,
+            setGameHistory,
+          }
         );
-        advanceGameLevel({ score, gameLevel, setGameLevel });
+
+        advanceGameLevel({ score, gameLevel }, { setGameLevel });
       }, speed);
     }
 
@@ -67,9 +81,12 @@ function App() {
     snakeDots,
     alive,
     foodDots,
+    obstacles,
     speed,
     score,
-    onGameOver,
+    gameLevel,
+    gameHistory,
+    startButtonName
   ]);
 
   useEffect(() => {
@@ -85,67 +102,43 @@ function App() {
     return () => {
       clearTimeout(foodDotGenerate);
     };
-  }, [foodDots, isPaused]);
+  }, [isPaused, foodDots]);
 
   useEffect(() => {
     if (!isPaused && foodDots.length > 6) {
       setFoodDots((prev) => [...prev.slice(prev.length - 2)]);
     }
-  }, [foodDots]);
-
-  function onGameOver() {
-    setAlive(false);
-    setSnakeDots(INITIAL_SNAKE_DOTS);
-    setFoodDots(getRandomCoordinates(INITIAL_SNAKE_DOTS, [], obstacles));
-    setMoveDirection("RIGHT");
-    setIsPaused(true);
-
-    const currentGame = { score: score, timestamp: new Date().toISOString() };
-    const updatedHistory = [...gameHistory, currentGame];
-
-    localStorage.setItem("gameHistory", JSON.stringify(updatedHistory));
-    setGameHistory((prevState) => {
-      return [...prevState, currentGame];
-    });
-  }
-
-  function rePlay() {
-    setMoveDirection("RIGHT");
-    setStartButtonName("Play again");
-    setScore(0);
-    setAlive(true);
-    setFoodDots([getRandomCoordinates(INITIAL_SNAKE_DOTS)]);
-    setIsPaused(false);
-    setSpeed(240);
-  }
+  }, [isPaused, foodDots]);
 
   return (
     <div className="app">
-      <div className="snake-image"></div>
       <h1 className="title">Snake Game</h1>
       {alive ? (
-        <div>
-          <div className="box">
-            <span className="content">{score}</span>
-          </div>
-          <GameBoard
-            snakeDots={snakeDots}
-            foodDots={foodDots}
-            obstacles={obstacles}
-            setObstacles={setObstacles}
-            gameLevel={gameLevel}
-          />
-        </div>
+        <GameBoard
+          score={score}
+          snakeDots={snakeDots}
+          foodDots={foodDots}
+          obstacles={obstacles}
+          setObstacles={setObstacles}
+          gameLevel={gameLevel}
+        />
       ) : (
-        <div>
-          <GameInstructions />
-          <div className="box">
-            <ScoreBoard score={score} gameHistory={gameHistory} />
-            <button className="button" onClick={rePlay}>
-              {startButtonName}
-            </button>
-          </div>
-        </div>
+        <GameStartScreen
+          score={score}
+          gameHistory={gameHistory}
+          rePlay={() =>
+            rePlay({
+              setMoveDirection,
+              setStartButtonName,
+              setScore,
+              setAlive,
+              setFoodDots,
+              setIsPaused,
+              setSpeed,
+            })
+          }
+          startButtonName={startButtonName}
+        />
       )}
     </div>
   );

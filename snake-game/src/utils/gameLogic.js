@@ -4,6 +4,7 @@ import {
   SNAKE_DOT_SIZE,
   OBSTACLE_SIZE,
   MOVE_DIRECTIONS,
+  INITIAL_SNAKE_DOTS,
 } from "./constants";
 
 export function getRandomCoordinates(snakeDots, foodDots, obstacles) {
@@ -56,30 +57,40 @@ export function moveSnake(isAlive, moveDirection, snakeDots, setSnakeDots) {
   }
 }
 
-export function checkCollision(gameParams, onGameOver) {
+export function checkCollision(gameParams, gameStateSetters) {
   const { snakeDots } = gameParams;
   let currentHead = snakeDots[snakeDots.length - 1];
 
-  checkIfEat(gameParams);
-  onOutOfBounds(gameParams, onGameOver);
-  checkIfSelfCollapsed(gameParams, currentHead, onGameOver);
+  checkIfEat(gameParams, gameStateSetters);
+  onOutOfBounds(gameParams, gameStateSetters);
+  checkIfSelfCollapsed(gameParams, currentHead, gameStateSetters);
 
   if (gameParams.gameLevel > 1) {
-    checkCollisionWithObstacle(gameParams, currentHead, onGameOver);
+    checkCollisionWithObstacle(gameParams, currentHead, gameStateSetters);
   }
 
   if (gameParams.gameLevel > 2) {
-    checkIfOutOfBoard(gameParams, onGameOver);
+    checkIfOutOfBoard(gameParams, gameStateSetters);
   }
 }
 
-export function advanceGameLevel(gameParams) {
+export function advanceGameLevel(gameParams, gameStateSetters) {
   if (gameParams.score !== 0 && gameParams.score % 200 === 0) {
-    gameParams.setGameLevel((prev) => prev + 1);
+    gameStateSetters.setGameLevel((prev) => prev + 1);
   }
 }
 
-function checkCollisionWithObstacle(gameParams, currentHead, onGameOver) {
+export function rePlay(gameStateSetters) {
+  gameStateSetters.setMoveDirection("RIGHT");
+  gameStateSetters.setStartButtonName("Play again");
+  gameStateSetters.setScore(0);
+  gameStateSetters.setAlive(true);
+  gameStateSetters.setFoodDots([getRandomCoordinates(INITIAL_SNAKE_DOTS)]);
+  gameStateSetters.setIsPaused(false);
+  gameStateSetters.setSpeed(240);
+}
+
+function checkCollisionWithObstacle(gameParams, currentHead, gameStateSetters) {
   const obstacles = gameParams.obstacles;
   const [headY, headX] = currentHead;
   let offsetX = headX;
@@ -109,11 +120,11 @@ function checkCollisionWithObstacle(gameParams, currentHead, onGameOver) {
   );
 
   if (obstacleCollidedIndex > -1) {
-    onGameOver();
+    onGameOver(gameParams, gameStateSetters);
   }
 }
 
-function checkIfOutOfBoard(gameParams, onGameOver) {
+function checkIfOutOfBoard(gameParams, gameStateSetters) {
   let [topPosition, leftPosition] =
     gameParams.snakeDots[gameParams.snakeDots.length - 1];
   if (
@@ -122,7 +133,7 @@ function checkIfOutOfBoard(gameParams, onGameOver) {
     topPosition < BOARD_MIN ||
     leftPosition < BOARD_MIN
   ) {
-    onGameOver();
+    onGameOver(gameParams, gameStateSetters);
   }
 }
 
@@ -159,7 +170,7 @@ function checkCollisionOnObjectBuild(
   return false;
 }
 
-function checkIfEat(gameParams) {
+function checkIfEat(gameParams, gameStateSetters) {
   let head = gameParams.snakeDots[gameParams.snakeDots.length - 1];
   const [headY, headX] = head;
 
@@ -168,27 +179,27 @@ function checkIfEat(gameParams) {
   );
 
   if (foodCollidedIndex > -1) {
-    gameParams.setFoodDots((prev) => [
+    gameStateSetters.setFoodDots((prev) => [
       ...prev.slice(0, foodCollidedIndex),
       ...prev.slice(foodCollidedIndex + 1),
     ]);
 
-    gameParams.setFoodDots((prev) => [
+    gameStateSetters.setFoodDots((prev) => [
       ...prev,
       getRandomCoordinates(gameParams.snakeDots, gameParams.foodDots),
     ]);
 
-    enlargeSnake(gameParams);
+    enlargeSnake(gameParams, gameStateSetters.setSnakeDots);
 
     if (gameParams.gameLevel > 1) {
-      increaseSpeed(gameParams);
+      increaseSpeed(gameParams, gameStateSetters.setSpeed);
     }
 
-    gameParams.setScore((prevScore) => prevScore + 10);
+    gameStateSetters.setScore((prevScore) => prevScore + 10);
   }
 }
 
-function onOutOfBounds(gameParams) {
+function onOutOfBounds(gameParams, gameStateSetters) {
   let [headX, headY] = gameParams.snakeDots[gameParams.snakeDots.length - 1];
   if (
     headX >= BOARD_MAX ||
@@ -213,31 +224,34 @@ function onOutOfBounds(gameParams) {
 
     const newSnakeDots = [...gameParams.snakeDots];
     newSnakeDots[newSnakeDots.length - 1] = [newHeadX, newHeadY];
-    gameParams.setSnakeDots(newSnakeDots);
+    gameStateSetters.setSnakeDots(newSnakeDots);
   }
 }
 
-function checkIfSelfCollapsed(gameParams, head, onGameOver) {
+function checkIfSelfCollapsed(gameParams, head, gameStateSetters) {
   let snake = [...gameParams.snakeDots];
   const [headTopPosition, headLeftPosition] = head;
   snake.pop();
   snake.forEach(([snakeDotTop, snakeDotLeft], index) => {
     if (headTopPosition === snakeDotTop && headLeftPosition === snakeDotLeft) {
-      onGameOver();
+      onGameOver(gameParams, gameStateSetters);
     }
   });
 }
 
-function increaseSpeed({ speed, setSpeed, gameLevel }) {
+function increaseSpeed({ speed, gameLevel }, setSpeed) {
   if (speed > 10) {
-    setSpeed((prevSpeed) => gameLevel === 2 ? prevSpeed - 10 : prevSpeed - 20);
+    setSpeed((prevSpeed) =>
+      gameLevel === 2 ? prevSpeed - 5 : prevSpeed - 10
+    );
   }
 }
 
-function enlargeSnake({ snakeDots, setSnakeDots, moveDirection }) {
+function enlargeSnake({ snakeDots, moveDirection }, setSnakeDots) {
   let newDot = snakeDots[snakeDots.length - 1];
   const [dotY, dotX] = newDot;
   const { UP, DOWN, LEFT, RIGHT } = MOVE_DIRECTIONS;
+
   switch (moveDirection) {
     case RIGHT:
       newDot = [dotY, dotX + SNAKE_DOT_SIZE];
@@ -254,6 +268,28 @@ function enlargeSnake({ snakeDots, setSnakeDots, moveDirection }) {
     default:
       break;
   }
+
   const newSnake = [...snakeDots, newDot];
   setSnakeDots(newSnake);
+}
+
+function onGameOver(gameParams, gameStateSetters) {
+  gameStateSetters.setAlive(false);
+  gameStateSetters.setSnakeDots(INITIAL_SNAKE_DOTS);
+  gameStateSetters.setFoodDots(
+    getRandomCoordinates(INITIAL_SNAKE_DOTS, [], gameParams.obstacles)
+  );
+  gameStateSetters.setMoveDirection("RIGHT");
+  gameStateSetters.setIsPaused(true);
+
+  const currentGame = {
+    score: gameParams.score,
+    timestamp: new Date().toISOString(),
+  };
+  const updatedHistory = [...gameParams.gameHistory, currentGame];
+
+  localStorage.setItem("gameHistory", JSON.stringify(updatedHistory));
+  gameStateSetters.setGameHistory((prevState) => {
+    return [...prevState, currentGame];
+  });
 }
