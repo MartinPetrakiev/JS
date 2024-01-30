@@ -58,7 +58,7 @@ export function moveSnake(isAlive, moveDirection, snakeDots, setSnakeDots) {
   }
 }
 
-export function checkCollision(gameParams, gameStateSetters) {
+export function gameRun(gameParams, gameStateSetters) {
   const { snakeDots } = gameParams;
   let currentHead = snakeDots[snakeDots.length - 1];
 
@@ -81,7 +81,11 @@ export function advanceGameLevel(gameParams, gameStateSetters) {
   }
 }
 
-export function rePlay(gameStateSetters) {
+export function rePlay(gameStateSetters, playerName) {
+  if (playerName === "") {
+    return;
+  }
+
   gameStateSetters.setMoveDirection("RIGHT");
   gameStateSetters.setStartButtonName("Play again");
   gameStateSetters.setScore(0);
@@ -286,6 +290,7 @@ function onGameOver(gameParams, gameStateSetters) {
   gameStateSetters.setIsPaused(true);
 
   const currentGame = {
+    playerName: gameParams.playerName,
     score: gameParams.score,
     timestamp: new Date().toISOString(),
   };
@@ -295,4 +300,6 @@ function onGameOver(gameParams, gameStateSetters) {
   gameStateSetters.setGameHistory((prevState) => {
     return [...prevState, currentGame];
   });
+
+  gameStateSetters.setPlayerName("");
 }

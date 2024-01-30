@@ -20,6 +20,10 @@ function ScoreBoard({ gameHistory, score }) {
       return sortOrder === "asc"
         ? a.timestamp - b.timestamp
         : b.timestamp - a.timestamp;
+    } else if (sortBy === "player") {
+      return sortOrder === "asc"
+        ? a.playerName.localeCompare(b.playerName)
+        : b.playerName.localeCompare(a.playerName);
     }
     return 0;
   });
@@ -32,6 +36,7 @@ function ScoreBoard({ gameHistory, score }) {
           <table>
             <thead>
               <tr>
+                <th onClick={() => handleSort("player")}>Player</th>
                 <th onClick={() => handleSort("score")}>Score</th>
                 <th onClick={() => handleSort("timestamp")}>Timestamp</th>
               </tr>
@@ -39,6 +44,7 @@ function ScoreBoard({ gameHistory, score }) {
             <tbody>
               {sortedGameHistory.map((eachGame, index) => (
                 <tr key={index}>
+                  <td>{eachGame.playerName}</td>
                   <td>{eachGame.score}</td>
                   <td>{new Date(eachGame.timestamp).toLocaleString()}</td>
                 </tr>

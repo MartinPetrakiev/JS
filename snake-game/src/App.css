@@ -130,3 +130,14 @@
 .game-history table tr td {
   padding: 10px;
 }
+
+.player-input-box {
+  margin-block-start: 2rem;
+}
+
+.player-input-box input{
+  font-size: 1.3em;
+  padding: 0.5em;
+  width: 100%;
+  border-radius: 15px;
+}

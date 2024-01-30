@@ -3,7 +3,7 @@ import "./App.css";
 import {
   getRandomCoordinates,
   moveSnake,
-  checkCollision,
+  gameRun,
   advanceGameLevel,
   rePlay,
 } from "./utils/gameLogic";
@@ -15,9 +15,7 @@ import { v4 as uuidv4 } from "uuid";
 
 function App() {
   const [snakeDots, setSnakeDots] = useState(INITIAL_SNAKE_DOTS);
-  const [foodDots, setFoodDots] = useState([
-    { key: uuidv4(), x: 10, y: 10  },
-  ]);
+  const [foodDots, setFoodDots] = useState([{ key: uuidv4(), x: 10, y: 10 }]);
   const [obstacles, setObstacles] = useState([]);
   const [moveDirection, setMoveDirection] = useState("RIGHT");
   const [alive, setAlive] = useState(false);
@@ -26,6 +24,7 @@ function App() {
   const [score, setScore] = useState(0);
   const [isPaused, setIsPaused] = useState(true);
   const [gameLevel, setGameLevel] = useState(1);
+  const [playerName, setPlayerName] = useState("");
   const [gameHistory, setGameHistory] = useState(
     JSON.parse(localStorage.getItem("gameHistory")) || []
   );
@@ -40,7 +39,7 @@ function App() {
       run = setInterval(() => {
         moveSnake(alive, moveDirection, snakeDots, setSnakeDots);
 
-        checkCollision(
+        gameRun(
           {
             snakeDots,
             foodDots,
@@ -53,6 +52,7 @@ function App() {
             isPaused,
             gameLevel,
             gameHistory,
+            playerName
           },
           {
             setSnakeDots,
@@ -66,6 +66,7 @@ function App() {
             setIsPaused,
             setGameLevel,
             setGameHistory,
+            setPlayerName
           }
         );
 
@@ -93,19 +94,22 @@ function App() {
   useEffect(() => {
     const foodDotGenerate = setTimeout(() => {
       if (!isPaused) {
-        
         setFoodDots((prev) => {
-          const [randomX, randomY] = getRandomCoordinates(snakeDots, prev, obstacles);
+          const [randomX, randomY] = getRandomCoordinates(
+            snakeDots,
+            prev,
+            obstacles
+          );
           return [
             ...prev,
             {
               key: uuidv4(),
               x: randomX,
-              y: randomY
+              y: randomY,
             },
-          ]
+          ];
         });
-        console.log(foodDots)
+        console.log(foodDots);
       }
     }, 5000);
 
@@ -135,17 +139,23 @@ function App() {
       ) : (
         <GameStartScreen
           score={score}
+          playerName={playerName}
+          setPlayerName={setPlayerName}
           gameHistory={gameHistory}
           rePlay={() =>
-            rePlay({
-              setMoveDirection,
-              setStartButtonName,
-              setScore,
-              setAlive,
-              setFoodDots,
-              setIsPaused,
-              setSpeed,
-            })
+            rePlay(
+              {
+                setMoveDirection,
+                setStartButtonName,
+                setScore,
+                setAlive,
+                setFoodDots,
+                setIsPaused,
+                setSpeed,
+                setPlayerName,
+              },
+              playerName
+            )
           }
           startButtonName={startButtonName}
         />

@@ -27,3 +27,7 @@ export function onKeyDown(e, isPaused, setMoveDirection, setIsPaused) {
 export function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+export function handlePlayerNameInput(e, stateSetter) {
+  stateSetter(e.target.value);
+}
