@@ -5,7 +5,7 @@ import Obstacle from "../Obstacle";
 import { generateRandomObstacle } from "../../utils/gameLogic";
 import { v4 as uuidv4 } from "uuid";
 
-function Level2({ foodDots, snakeDots, obstacles, gameLevel, setObstacles }) {
+function Level2({ foodDots, snakeDots, obstacles, gameLevel, setGameObjects }) {
   useEffect(() => {
     const numberOfObstacles = gameLevel > 2 ? 15 : 8;
 
@@ -13,7 +13,12 @@ function Level2({ foodDots, snakeDots, obstacles, gameLevel, setObstacles }) {
       generateRandomObstacle(snakeDots, foodDots)
     );
 
-    setObstacles(newObstacles);
+    setGameObjects((prevState) => {
+      return {
+        ...prevState,
+        obstacles: newObstacles
+      }
+    });
   }, []);
 
   return (

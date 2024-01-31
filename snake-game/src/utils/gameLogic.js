@@ -1,305 +1,343 @@
 import {
-  BOARD_MIN,
-  BOARD_MAX,
-  SNAKE_DOT_SIZE,
-  OBSTACLE_SIZE,
-  MOVE_DIRECTIONS,
-  INITIAL_SNAKE_DOTS,
+    BOARD_MIN,
+    BOARD_MAX,
+    SNAKE_DOT_SIZE,
+    OBSTACLE_SIZE,
+    MOVE_DIRECTIONS,
+    GAME_HISOTRY,
 } from "./constants";
-import { v4 as uuidv4 } from "uuid";
 
 export function getRandomCoordinates(snakeDots, foodDots, obstacles) {
-  let min = BOARD_MIN + 1;
-  let max = BOARD_MAX - 2;
-  let x, y;
-  do {
-    x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
-    y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
-  } while (checkCollisionOnObjectBuild([x, y], snakeDots, foodDots, obstacles));
+    let min = BOARD_MIN + 1;
+    let max = BOARD_MAX - 2;
+    let x, y;
+    do {
+        x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
+        y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
+    } while (
+        checkCollisionOnObjectBuild([x, y], snakeDots, foodDots, obstacles)
+    );
 
-  return [x, y];
+    return [x, y];
 }
 
 export function generateRandomObstacle(snakeDots, foodDots) {
-  let x, y;
-  do {
-    x = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
-    y = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
-  } while (checkCollisionOnObjectBuild([x, y], snakeDots, foodDots));
+    let x, y;
+    do {
+        x = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
+        y = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
+    } while (checkCollisionOnObjectBuild([x, y], snakeDots, foodDots));
 
-  return [x, y];
+    return [x, y];
 }
 
-export function moveSnake(isAlive, moveDirection, snakeDots, setSnakeDots) {
-  if (isAlive) {
-    const currentSnakeDots = [...snakeDots];
-    let head = currentSnakeDots[currentSnakeDots.length - 1];
-    const [topPosition, leftPosition] = head;
+export function moveSnake(isAlive, moveDirection, snakeDots, setGameObjects) {
+    if (isAlive) {
+        const currentSnakeDots = [...snakeDots];
+        let head = currentSnakeDots[currentSnakeDots.length - 1];
+        const [topPosition, leftPosition] = head;
 
-    switch (moveDirection) {
-      case "RIGHT":
-        head = [topPosition, leftPosition + SNAKE_DOT_SIZE];
-        break;
-      case "LEFT":
-        head = [topPosition, leftPosition - SNAKE_DOT_SIZE];
-        break;
-      case "DOWN":
-        head = [topPosition + SNAKE_DOT_SIZE, leftPosition];
-        break;
-      case "UP":
-        head = [topPosition - SNAKE_DOT_SIZE, leftPosition];
-        break;
-      default:
-        break;
+        switch (moveDirection) {
+            case "RIGHT":
+                head = [topPosition, leftPosition + SNAKE_DOT_SIZE];
+                break;
+            case "LEFT":
+                head = [topPosition, leftPosition - SNAKE_DOT_SIZE];
+                break;
+            case "DOWN":
+                head = [topPosition + SNAKE_DOT_SIZE, leftPosition];
+                break;
+            case "UP":
+                head = [topPosition - SNAKE_DOT_SIZE, leftPosition];
+                break;
+            default:
+                break;
+        }
+
+        currentSnakeDots.push(head);
+        currentSnakeDots.shift();
+
+        setGameObjects((prevState) => {
+            return {
+                ...prevState,
+                snakeDots: currentSnakeDots,
+            };
+        });
     }
-    currentSnakeDots.push(head);
-    currentSnakeDots.shift();
-    setSnakeDots(currentSnakeDots);
-  }
 }
 
 export function gameRun(gameParams, gameStateSetters) {
-  const { snakeDots } = gameParams;
-  let currentHead = snakeDots[snakeDots.length - 1];
+    const { snakeDots } = gameParams.gameObjects;
+    let currentHead = snakeDots[snakeDots.length - 1];
 
-  checkIfEat(gameParams, gameStateSetters);
-  onOutOfBounds(gameParams, gameStateSetters);
-  checkIfSelfCollapsed(gameParams, currentHead, gameStateSetters);
+    checkIfEat(gameParams, gameStateSetters);
+    onOutOfBounds(gameParams, gameStateSetters);
+    checkIfSelfCollapsed(gameParams, currentHead, gameStateSetters);
 
-  if (gameParams.gameLevel > 1) {
-    checkCollisionWithObstacle(gameParams, currentHead, gameStateSetters);
-  }
+    if (gameParams.gameControls.gameLevel > 1) {
+        checkCollisionWithObstacle(gameParams, currentHead, gameStateSetters);
+    }
 
-  if (gameParams.gameLevel > 2) {
-    checkIfOutOfBoard(gameParams, gameStateSetters);
-  }
+    if (gameParams.gameControls.gameLevel > 2) {
+        checkIfOutOfBoard(gameParams, gameStateSetters);
+    }
 }
 
-export function advanceGameLevel(gameParams, gameStateSetters) {
-  if (gameParams.score !== 0 && gameParams.score % 200 === 0) {
-    gameStateSetters.setGameLevel((prev) => prev + 1);
-  }
+export function advanceGameLevel(gameParams, setGameControls) {
+    if (gameParams.score !== 0 && gameParams.score % 100 === 0) {
+        setGameControls((prev) => {
+            return {
+                ...prev,
+                gameLevel: prev.gameLevel + 1,
+            };
+        });
+    }
 }
 
-export function rePlay(gameStateSetters, playerName) {
-  if (playerName === "") {
-    return;
-  }
+export function rePlay(setGameControls, playerName) {
+    if (playerName === "") {
+        return;
+    }
 
-  gameStateSetters.setMoveDirection("RIGHT");
-  gameStateSetters.setStartButtonName("Play again");
-  gameStateSetters.setScore(0);
-  gameStateSetters.setAlive(true);
-
-  const [randomX, randomY] = getRandomCoordinates(INITIAL_SNAKE_DOTS, []);
-  gameStateSetters.setFoodDots([
-    {
-      key: uuidv4(),
-      x: randomX,
-      y: randomY,
-    },
-  ]);
-
-  gameStateSetters.setIsPaused(false);
-  gameStateSetters.setSpeed(240);
+    setGameControls((prevState) => {
+        return {
+            ...prevState,
+            startButton: "Play again",
+            score: 0,
+            alive: true,
+            isPaused: false,
+            gameLevel: 1,
+        };
+    });
 }
 
 function checkCollisionWithObstacle(gameParams, currentHead, gameStateSetters) {
-  const obstacles = gameParams.obstacles;
-  const [headY, headX] = currentHead;
-  let offsetX = headX;
-  let offsetY = headY;
-  const { UP, DOWN, LEFT, RIGHT } = MOVE_DIRECTIONS;
+    const obstacles = gameParams.gameObjects.obstacles;
+    const [headY, headX] = currentHead;
+    let offsetX = headX;
+    let offsetY = headY;
+    const { UP, DOWN, LEFT, RIGHT } = MOVE_DIRECTIONS;
 
-  switch (gameParams.moveDirection) {
-    case UP:
-      offsetY = headY - 2;
-      break;
-    case DOWN:
-      offsetY = headY + 2;
-      break;
-    case LEFT:
-      offsetX = headX - 2;
-      break;
-    case RIGHT:
-      offsetX = headX + 2;
-      break;
-    default:
-      break;
-  }
+    switch (gameParams.moveDirection) {
+        case UP:
+            offsetY = headY - 2;
+            break;
+        case DOWN:
+            offsetY = headY + 2;
+            break;
+        case LEFT:
+            offsetX = headX - 2;
+            break;
+        case RIGHT:
+            offsetX = headX + 2;
+            break;
+        default:
+            break;
+    }
 
-  let obstacleCollidedIndex = obstacles.findIndex(
-    ([obstacleX, obstacleY]) =>
-      obstacleX * 2 === offsetX && obstacleY * 2 === offsetY
-  );
+    let obstacleCollidedIndex = obstacles.findIndex(
+        ([obstacleX, obstacleY]) =>
+            obstacleX * 2 === offsetX && obstacleY * 2 === offsetY
+    );
 
-  if (obstacleCollidedIndex > -1) {
-    onGameOver(gameParams, gameStateSetters);
-  }
+    if (obstacleCollidedIndex > -1) {
+        onGameOver(gameParams.gameControls, gameStateSetters);
+    }
 }
 
-function checkIfOutOfBoard(gameParams, gameStateSetters) {
-  let [topPosition, leftPosition] =
-    gameParams.snakeDots[gameParams.snakeDots.length - 1];
-  if (
-    topPosition === BOARD_MAX ||
-    leftPosition === BOARD_MAX ||
-    topPosition < BOARD_MIN ||
-    leftPosition < BOARD_MIN
-  ) {
-    onGameOver(gameParams, gameStateSetters);
-  }
+function checkIfOutOfBoard({ gameObjects, gameControls }, gameStateSetters) {
+    let [topPosition, leftPosition] =
+        gameObjects.snakeDots[gameObjects.snakeDots.length - 1];
+    if (
+        topPosition === BOARD_MAX ||
+        leftPosition === BOARD_MAX ||
+        topPosition < BOARD_MIN ||
+        leftPosition < BOARD_MIN
+    ) {
+        onGameOver(gameControls, gameStateSetters);
+    }
 }
 
 function checkCollisionOnObjectBuild(
-  [inputTop, inputLeft],
-  snakeDots,
-  foodDots,
-  obstacles
+    [inputTop, inputLeft],
+    snakeDots,
+    foodDots,
+    obstacles
 ) {
-  for (let [dotTop, dotLeft] of snakeDots) {
-    if (dotTop === inputTop && dotLeft === inputLeft) {
-      return true;
+    for (let [dotTop, dotLeft] of snakeDots) {
+        if (dotTop === inputTop && dotLeft === inputLeft) {
+            return true;
+        }
     }
-  }
 
-  if (!foodDots) {
+    if (!foodDots) {
+        return false;
+    }
+
+    for (let { dotTop, dotLeft } of foodDots) {
+        if (dotTop === inputTop && dotLeft === inputLeft) {
+            return true;
+        }
+    }
+
+    if (obstacles) {
+        for (let [dotTop, dotLeft] of obstacles) {
+            if (dotTop === inputTop && dotLeft === inputLeft) {
+                return true;
+            }
+        }
+    }
+
     return false;
-  }
-
-  for (let { dotTop, dotLeft } of foodDots) {
-    if (dotTop === inputTop && dotLeft === inputLeft) {
-      return true;
-    }
-  }
-
-  if (obstacles) {
-    for (let [dotTop, dotLeft] of obstacles) {
-      if (dotTop === inputTop && dotLeft === inputLeft) {
-        return true;
-      }
-    }
-  }
-
-  return false;
 }
 
 function checkIfEat(gameParams, gameStateSetters) {
-  let head = gameParams.snakeDots[gameParams.snakeDots.length - 1];
-  const [headY, headX] = head;
+    const { snakeDots, foodDots } = gameParams.gameObjects;
+    const head = snakeDots[snakeDots.length - 1];
+    const [headY, headX] = head;
 
-  let foodCollidedIndex = gameParams.foodDots?.findIndex(
-    ({x: foodX, y: foodY}) => foodX === headX && foodY === headY
-  );
+    let foodCollidedIndex = foodDots?.findIndex(
+        ({ x: foodX, y: foodY }) => foodX === headX && foodY === headY
+    );
 
-  if (foodCollidedIndex > -1) {
-    gameStateSetters.setFoodDots((prev) => [
-      ...prev.slice(0, foodCollidedIndex),
-      ...prev.slice(foodCollidedIndex + 1),
-    ]);
+    if (foodCollidedIndex > -1) {
+        gameStateSetters.setGameObjects((prev) => {
+            return {
+                ...prev,
+                foodDots: [
+                    ...prev.foodDots.slice(0, foodCollidedIndex),
+                    ...prev.foodDots.slice(foodCollidedIndex + 1),
+                ],
+            };
+        });
 
-    enlargeSnake(gameParams, gameStateSetters.setSnakeDots);
+        enlargeSnake(gameParams, gameStateSetters.setGameObjects);
 
-    if (gameParams.gameLevel > 1) {
-      increaseSpeed(gameParams, gameStateSetters.setSpeed);
+        if (gameParams.gameLevel > 1) {
+            increaseSpeed(gameParams, gameStateSetters.setSpeed);
+        }
+
+        gameStateSetters.setGameControls((prevState) => {
+            return {
+                ...prevState,
+                score: prevState.score + 10,
+            };
+        });
     }
-
-    gameStateSetters.setScore((prevScore) => prevScore + 10);
-  }
 }
 
 function onOutOfBounds(gameParams, gameStateSetters) {
-  let [headX, headY] = gameParams.snakeDots[gameParams.snakeDots.length - 1];
-  if (
-    headX >= BOARD_MAX ||
-    headY >= BOARD_MAX ||
-    headX < BOARD_MIN ||
-    headY < BOARD_MIN
-  ) {
-    let newHeadX = headX;
-    let newHeadY = headY;
+    const { snakeDots } = gameParams.gameObjects;
+    let [headX, headY] = snakeDots[snakeDots.length - 1];
+    if (
+        headX >= BOARD_MAX ||
+        headY >= BOARD_MAX ||
+        headX < BOARD_MIN ||
+        headY < BOARD_MIN
+    ) {
+        let newHeadX = headX;
+        let newHeadY = headY;
 
-    if (headX >= BOARD_MAX) {
-      newHeadX = BOARD_MIN;
-    } else if (headY >= BOARD_MAX) {
-      newHeadY = BOARD_MIN;
+        if (headX >= BOARD_MAX) {
+            newHeadX = BOARD_MIN;
+        } else if (headY >= BOARD_MAX) {
+            newHeadY = BOARD_MIN;
+        }
+
+        if (headX < BOARD_MIN) {
+            newHeadX = BOARD_MAX - 2;
+        } else if (headY < BOARD_MIN) {
+            newHeadY = BOARD_MAX - 2;
+        }
+
+        const newSnakeDots = [...snakeDots];
+        newSnakeDots[newSnakeDots.length - 1] = [newHeadX, newHeadY];
+
+        gameStateSetters.setGameObjects((prevState) => {
+            return {
+                ...prevState,
+                snakeDots: newSnakeDots,
+            };
+        });
     }
-
-    if (headX < BOARD_MIN) {
-      newHeadX = BOARD_MAX - 2;
-    } else if (headY < BOARD_MIN) {
-      newHeadY = BOARD_MAX - 2;
-    }
-
-    const newSnakeDots = [...gameParams.snakeDots];
-    newSnakeDots[newSnakeDots.length - 1] = [newHeadX, newHeadY];
-    gameStateSetters.setSnakeDots(newSnakeDots);
-  }
 }
 
 function checkIfSelfCollapsed(gameParams, head, gameStateSetters) {
-  let snake = [...gameParams.snakeDots];
-  const [headTopPosition, headLeftPosition] = head;
-  snake.pop();
-  snake.forEach(([snakeDotTop, snakeDotLeft], index) => {
-    if (headTopPosition === snakeDotTop && headLeftPosition === snakeDotLeft) {
-      onGameOver(gameParams, gameStateSetters);
-    }
-  });
+    const { snakeDots } = gameParams.gameObjects;
+    let snake = [...snakeDots];
+    const [headTopPosition, headLeftPosition] = head;
+
+    snake.pop();
+
+    snake.forEach(([snakeDotTop, snakeDotLeft], index) => {
+        if (
+            headTopPosition === snakeDotTop &&
+            headLeftPosition === snakeDotLeft
+        ) {
+            onGameOver(gameParams.gameControls, gameStateSetters);
+        }
+    });
 }
 
 function increaseSpeed({ speed, gameLevel }, setSpeed) {
-  if (speed > 10) {
-    setSpeed((prevSpeed) => (gameLevel === 2 ? prevSpeed - 5 : prevSpeed - 10));
-  }
+    if (speed > 10) {
+        setSpeed((prevSpeed) =>
+            gameLevel === 2 ? prevSpeed - 5 : prevSpeed - 10
+        );
+    }
 }
 
-function enlargeSnake({ snakeDots, moveDirection }, setSnakeDots) {
-  let newDot = snakeDots[snakeDots.length - 1];
-  const [dotY, dotX] = newDot;
-  const { UP, DOWN, LEFT, RIGHT } = MOVE_DIRECTIONS;
+function enlargeSnake({ gameObjects, moveDirection }, setGameObjects) {
+    const { snakeDots } = gameObjects;
+    let newDot = snakeDots[snakeDots.length - 1];
+    const [dotY, dotX] = newDot;
+    const { UP, DOWN, LEFT, RIGHT } = MOVE_DIRECTIONS;
 
-  switch (moveDirection) {
-    case RIGHT:
-      newDot = [dotY, dotX + SNAKE_DOT_SIZE];
-      break;
-    case LEFT:
-      newDot = [dotY, dotX - SNAKE_DOT_SIZE];
-      break;
-    case DOWN:
-      newDot = [dotY + SNAKE_DOT_SIZE, dotX];
-      break;
-    case UP:
-      newDot = [dotY - SNAKE_DOT_SIZE, dotX];
-      break;
-    default:
-      break;
-  }
+    switch (moveDirection) {
+        case RIGHT:
+            newDot = [dotY, dotX + SNAKE_DOT_SIZE];
+            break;
+        case LEFT:
+            newDot = [dotY, dotX - SNAKE_DOT_SIZE];
+            break;
+        case DOWN:
+            newDot = [dotY + SNAKE_DOT_SIZE, dotX];
+            break;
+        case UP:
+            newDot = [dotY - SNAKE_DOT_SIZE, dotX];
+            break;
+        default:
+            break;
+    }
 
-  const newSnake = [...snakeDots, newDot];
-  setSnakeDots(newSnake);
+    const newSnake = [...snakeDots, newDot];
+    setGameObjects((prevState) => {
+        return {
+            ...prevState,
+            snakeDots: newSnake,
+        };
+    });
 }
 
-function onGameOver(gameParams, gameStateSetters) {
-  gameStateSetters.setAlive(false);
-  gameStateSetters.setSnakeDots(INITIAL_SNAKE_DOTS);
-  gameStateSetters.setFoodDots(
-    getRandomCoordinates(INITIAL_SNAKE_DOTS, [], gameParams.obstacles)
-  );
-  gameStateSetters.setMoveDirection("RIGHT");
-  gameStateSetters.setIsPaused(true);
+function onGameOver(gameControls, gameStateSetters) {
+    const currentGame = {
+        playerName: gameControls.playerName,
+        score: gameControls.score,
+        timestamp: new Date().toISOString(),
+    };
+    const updatedHistory = [...gameControls.gameHistory, currentGame];
 
-  const currentGame = {
-    playerName: gameParams.playerName,
-    score: gameParams.score,
-    timestamp: new Date().toISOString(),
-  };
-  const updatedHistory = [...gameParams.gameHistory, currentGame];
+    localStorage.setItem(GAME_HISOTRY, JSON.stringify(updatedHistory));
 
-  localStorage.setItem("gameHistory", JSON.stringify(updatedHistory));
-  gameStateSetters.setGameHistory((prevState) => {
-    return [...prevState, currentGame];
-  });
-
-  gameStateSetters.setPlayerName("");
+    gameStateSetters.setGameControls((prevState) => {
+        return {
+            ...prevState,
+            alive: false,
+            moveDirection: MOVE_DIRECTIONS.RIGHT,
+            isPaused: true,
+            gameHistory: [...prevState.gameHistory, currentGame],
+            playerName: "",
+            startButtonName: "Play again",
+        };
+    });
 }
