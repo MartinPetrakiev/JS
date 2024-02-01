@@ -1,35 +1,37 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import Snake from "../Snake/Snake";
 import Food from "../Food";
 import Obstacle from "../Obstacle";
 import { generateRandomObstacle } from "../../utils/gameLogic";
+import { v4 as uuidv4 } from "uuid";
 
-function Level2({ foodDots, snakeDots, obstacles, gameLevel, setObstacles }) {
+function Level2({ foodDots, snakeDots, obstacles, gameLevel, setGameObjects }) {
   useEffect(() => {
     const numberOfObstacles = gameLevel > 2 ? 15 : 8;
 
-    const newObstacles = Array.from({ length: numberOfObstacles }, (_, index) =>
+    const newObstacles = Array.from({ length: numberOfObstacles }, () =>
       generateRandomObstacle(snakeDots, foodDots)
     );
 
-    setObstacles(newObstacles);
+    setGameObjects((prevState) => {
+      return {
+        ...prevState,
+        obstacles: newObstacles
+      }
+    });
   }, []);
 
   return (
-    <svg className="game-board">
+    <g>
+      {foodDots.length > 0 &&
+        foodDots.map(({ key, x, y }) => <Food key={key} x={x} y={y} />)}
+      <Snake snakeDots={snakeDots} />
       <g>
-        {foodDots.length > 0 &&
-          foodDots.map(([x, y], index) => (
-            <Food key={index + "f"} x={x} y={y} />
-          ))}
-        <Snake snakeDots={snakeDots} />
-        <g>
-          {obstacles.map(([x, y], index) => (
-            <Obstacle key={index + "o"} x={x} y={y} />
-          ))}
-        </g>
+        {obstacles.map(([x, y]) => (
+          <Obstacle key={uuidv4()} x={x} y={y} />
+        ))}
       </g>
-    </svg>
+    </g>
   );
 }
 

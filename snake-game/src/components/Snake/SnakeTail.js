@@ -1,46 +1,46 @@
 import React from "react";
 
 function SnakeTail({ snakeDot, snakeDotAdjacent }) {
-  const [row, col] = snakeDot.map((x) => x * 16);
-  const [rowAdj, colAdj] = snakeDotAdjacent.map((x) => x * 16);
+  const [dotX, dotY] = snakeDot.map((x) => x * 16);
+  const [adjDotX, adjDotY] = snakeDotAdjacent.map((x) => x * 16);
 
   const TRIANGLE_POINTS_UP = [
-    { x: col, y: row },
-    { x: col + 32, y: row },
-    { x: col + 16, y: row + 32 },
+    { x: dotY, y: dotX },
+    { x: dotY + 32, y: dotX },
+    { x: dotY + 16, y: dotX + 32 },
   ];
 
   const TRIANGLE_POINTS_RIGHT = [
-    { x: col + 32, y: row },
-    { x: col + 32, y: row + 32 },
-    { x: col, y: row + 16 },
+    { x: dotY + 32, y: dotX },
+    { x: dotY + 32, y: dotX + 32 },
+    { x: dotY, y: dotX + 16 },
   ];
 
   const TRIANGLE_POINTS_LEFT = [
-    { x: col, y: row },
-    { x: col, y: row + 32 },
-    { x: col + 32, y: row + 16 },
+    { x: dotY, y: dotX },
+    { x: dotY, y: dotX + 32 },
+    { x: dotY + 32, y: dotX + 16 },
   ];
 
   const TRIANGLE_POINTS_DOWN = [
-    { x: col + 16, y: row },
-    { x: col, y: row + 32 },
-    { x: col + 32, y: row + 32 },
+    { x: dotY + 16, y: dotX },
+    { x: dotY, y: dotX + 32 },
+    { x: dotY + 32, y: dotX + 32 },
   ];
 
   let pointsString = "";
 
-  if (rowAdj < row) {
+  if (adjDotX < dotX) {
     pointsString = TRIANGLE_POINTS_UP.map(({ x, y }) => `${x},${y}`).join(" ");
-  } else if (rowAdj > row) {
+  } else if (adjDotX > dotX) {
     pointsString = TRIANGLE_POINTS_DOWN.map(({ x, y }) => `${x},${y}`).join(
       " ",
     );
-  } else if (colAdj < col) {
+  } else if (adjDotY < dotY) {
     pointsString = TRIANGLE_POINTS_LEFT.map(({ x, y }) => `${x},${y}`).join(
       " ",
     );
-  } else if (colAdj > col) {
+  } else if (adjDotY > dotY) {
     pointsString = TRIANGLE_POINTS_RIGHT.map(({ x, y }) => `${x},${y}`).join(
       " ",
     );
