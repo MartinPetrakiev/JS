@@ -83,18 +83,7 @@ export function gameRun(gameParams, gameStateSetters) {
     }
 }
 
-export function advanceGameLevel(gameParams, setGameControls) {
-    if (gameParams.score !== 0 && gameParams.score % 100 === 0) {
-        setGameControls((prev) => {
-            return {
-                ...prev,
-                gameLevel: prev.gameLevel + 1,
-            };
-        });
-    }
-}
-
-export function rePlay(setGameControls, playerName) {
+export function play(setGameControls, playerName) {
     if (playerName === "") {
         return;
     }
@@ -191,7 +180,7 @@ function checkCollisionOnObjectBuild(
     return false;
 }
 
-function checkIfEat(gameParams, gameStateSetters) {
+function checkIfEat(gameParams, { setGameObjects, setGameControls, setSpeed }) {
     const { snakeDots, foodDots } = gameParams.gameObjects;
     const head = snakeDots[snakeDots.length - 1];
     const [headY, headX] = head;
@@ -201,7 +190,7 @@ function checkIfEat(gameParams, gameStateSetters) {
     );
 
     if (foodCollidedIndex > -1) {
-        gameStateSetters.setGameObjects((prev) => {
+        setGameObjects((prev) => {
             return {
                 ...prev,
                 foodDots: [
@@ -211,23 +200,34 @@ function checkIfEat(gameParams, gameStateSetters) {
             };
         });
 
-        enlargeSnake(gameParams, gameStateSetters.setGameObjects);
+        enlargeSnake(gameParams, setGameObjects);
 
-        if (gameParams.gameLevel > 1) {
-            increaseSpeed(gameParams, gameStateSetters.setSpeed);
+        const { gameLevel, score } = gameParams.gameControls
+
+        if (gameLevel > 1) {
+            increaseSpeed(gameParams, setSpeed);
         }
 
-        gameStateSetters.setGameControls((prevState) => {
+        setGameControls((prevState) => {
             return {
                 ...prevState,
                 score: prevState.score + 10,
             };
         });
+
+        if ((score + 10) % 100 === 0) {
+            setGameControls((prev) => {
+                return {
+                    ...prev,
+                    gameLevel: prev.gameLevel + 1,
+                };
+            });
+        }
     }
 }
 
-function onOutOfBounds(gameParams, gameStateSetters) {
-    const { snakeDots } = gameParams.gameObjects;
+function onOutOfBounds({ gameObjects }, { setGameObjects }) {
+    const { snakeDots } = gameObjects;
     let [headX, headY] = snakeDots[snakeDots.length - 1];
     if (
         headX >= BOARD_MAX ||
@@ -253,7 +253,7 @@ function onOutOfBounds(gameParams, gameStateSetters) {
         const newSnakeDots = [...snakeDots];
         newSnakeDots[newSnakeDots.length - 1] = [newHeadX, newHeadY];
 
-        gameStateSetters.setGameObjects((prevState) => {
+        setGameObjects((prevState) => {
             return {
                 ...prevState,
                 snakeDots: newSnakeDots,

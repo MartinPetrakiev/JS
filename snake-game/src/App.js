@@ -1,5 +1,5 @@
 import "./App.css";
-import { rePlay } from "./utils/gameLogic";
+import { play } from "./utils/gameLogic";
 import GameBoard from "./components/GameBoard";
 import GameStartScreen from "./components/GameStartScreen";
 import { useGameControls } from "./utils/customHooks";
@@ -17,10 +17,10 @@ function App() {
                 />
             ) : (
                 <GameStartScreen
-                    gameControls={{...gameControls}}
+                    gameControls={gameControls}
                     setGameControls={setGameControls}
-                    rePlay={() =>
-                        rePlay(setGameControls, gameControls.playerName)
+                    play={() =>
+                        play(setGameControls, gameControls.playerName)
                     }
                 />
             )}

@@ -1,8 +1,8 @@
 import React from "react";
-import { OBSTACLE_SIZE } from "../utils/constants";
+import { OBSTACLE_SIZE } from "../../utils/constants";
 
 
-function Obstacle({ x, y }) {
+function ObstacleItem({ x, y }) {
   return (
     <rect
       className="obstacle"
@@ -12,4 +12,4 @@ function Obstacle({ x, y }) {
   );
 }
 
-export default Obstacle;
+export default ObstacleItem;

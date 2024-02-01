@@ -3,7 +3,7 @@ import GameInstructions from "./GameInstructions";
 import ScoreBoard from "./ScoreBoard";
 import { handlePlayerNameInput } from "../utils/utils";
 
-function GameStartScreen({ gameControls, rePlay, setGameControls }) {
+function GameStartScreen({ gameControls, play, setGameControls }) {
     const { score, gameHistory, startButtonName, playerName } =
         gameControls;
         
@@ -24,7 +24,7 @@ function GameStartScreen({ gameControls, rePlay, setGameControls }) {
                 {gameHistory.length > 0 && (
                     <ScoreBoard score={score} gameHistory={gameHistory} />
                 )}
-                <button className="button" onClick={rePlay}>
+                <button className="button" onClick={play}>
                     {startButtonName}
                 </button>
             </div>

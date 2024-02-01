@@ -221,6 +221,14 @@ const SVGS = [
     </>,
 ];
 
+const INITIAL_GAME_SPEED = 240;
+
+const LEVEL_2 = 8;
+const LEVEL_3 = 15;
+
+const OFFSET_X_HALF = 16;
+const OFFSET_X_FULL = 32;
+
 export {
     BOARD_MIN,
     BOARD_MAX,
@@ -231,4 +239,9 @@ export {
     SVGS,
     OBSTACLE_SIZE,
     GAME_HISOTRY,
+    INITIAL_GAME_SPEED,
+    LEVEL_2,
+    LEVEL_3,
+    OFFSET_X_HALF,
+    OFFSET_X_FULL
 };
