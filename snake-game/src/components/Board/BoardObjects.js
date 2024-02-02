@@ -78,15 +78,13 @@ function BoardObjects({ gameControls, setGameControls }) {
         <g>
             <FoodDots
                 isPaused={isPaused}
-                foodDots={gameObjects.foodDots}
+                foodDots={gameObjects.foodDots || []}
                 setGameObjects={setGameObjects}
             />
             <Snake snakeDots={gameObjects.snakeDots} />
             {gameLevel > 1 && (
                 <ObstacleDots
                     gameLevel={gameLevel}
-                    snakeDots={gameObjects.snakeDots}
-                    foodDots={gameObjects.foodDots}
                     obstacles={gameObjects.obstacles}
                     setGameObjects={setGameObjects}
                 />
@@ -95,4 +93,4 @@ function BoardObjects({ gameControls, setGameControls }) {
     );
 }
 
-export default BoardObjects;
+export default React.memo(BoardObjects);

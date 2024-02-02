@@ -38,7 +38,7 @@ function FoodDots({ isPaused, foodDots, setGameObjects }) {
             setGameObjects((prev) => {
                 return {
                     ...prev,
-                    foodDots: [...prev.foodDots.slice(prev.length - 2)],
+                    foodDots: prev.foodDots.slice(prev?.foodDots.length - 2),
                 };
             });
         }
@@ -52,4 +52,4 @@ function FoodDots({ isPaused, foodDots, setGameObjects }) {
     );
 }
 
-export default FoodDots;
+export default React.memo(FoodDots);

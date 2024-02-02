@@ -15,6 +15,7 @@ export function useGameObjects() {
     };
 }
 
+const initalHistory =  JSON.parse(localStorage.getItem(GAME_HISOTRY)) || [];
 export function useGameControls() {
     const [gameControls, setGameControls] = useState({
         alive: false,
@@ -23,7 +24,7 @@ export function useGameControls() {
         isPaused: true,
         gameLevel: 1,
         playerName: "",
-        gameHistory: JSON.parse(localStorage.getItem(GAME_HISOTRY)) || [],
+        gameHistory: initalHistory,
     });
 
     return {

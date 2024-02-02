@@ -29,4 +29,4 @@ function ObstacleDots({ gameLevel, obstacles, setGameObjects }) {
     );
 }
 
-export default ObstacleDots;
+export default React.memo(ObstacleDots);

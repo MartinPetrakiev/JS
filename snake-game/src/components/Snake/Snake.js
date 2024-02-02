@@ -21,4 +21,4 @@ function Snake({ snakeDots }) {
     );
 }
 
-export default Snake;
+export default React.memo(Snake);
