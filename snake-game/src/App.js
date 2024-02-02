@@ -1,7 +1,7 @@
 import "./App.css";
 import { play } from "./utils/gameLogic";
-import GameBoard from "./components/GameBoard";
-import GameStartScreen from "./components/GameStartScreen";
+import GameBoard from "./components/Board/GameBoard";
+import GameStartScreen from "./components/StartScreen/GameStartScreen";
 import { useGameControls } from "./utils/customHooks";
 
 function App() {
