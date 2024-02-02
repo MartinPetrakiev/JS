@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Snake from "../Snake/Snake";
 import FoodDots from "../Food/FoodDots";
 import ObstacleDots from "../Obstacles/ObstacleDots";
@@ -11,7 +11,10 @@ function BoardObjects({ gameControls, setGameControls }) {
     const { gameObjects, setGameObjects } = useGameObjects();
     const [speed, setSpeed] = useState(INITIAL_GAME_SPEED);
     const [moveDirection, setMoveDirection] = useState(MOVE_DIRECTIONS.RIGHT);
-    const { alive: isAlive, isPaused, gameLevel, ...restOfGameControls } = gameControls;
+
+    const memoizedgameControls = useMemo(() => ({ ...gameControls }), [gameControls]);
+    const memoizedGameObjects = useMemo(() => ({ ...gameObjects }), [gameObjects]);
+    const { alive: isAlive, isPaused, gameLevel } = gameControls;
 
     const handleKeyDown = useCallback(
         (e) => {
@@ -36,16 +39,16 @@ function BoardObjects({ gameControls, setGameControls }) {
                 moveSnake(
                     isAlive,
                     moveDirection,
-                    gameObjects.snakeDots,
+                    memoizedGameObjects.snakeDots,
                     setGameObjects
                 );
 
                 gameRun(
                     {
-                        gameObjects,
+                        gameObjects: memoizedGameObjects,
                         moveDirection,
                         speed,
-                        gameControls: { alive: isAlive, isPaused, gameLevel, ...restOfGameControls }
+                        gameControls: memoizedgameControls,
                     },
                     {
                         setGameObjects,
@@ -61,14 +64,13 @@ function BoardObjects({ gameControls, setGameControls }) {
             clearInterval(run);
         };
     }, [
-        gameObjects,
+        memoizedGameObjects,
         setGameObjects,
+        memoizedgameControls,
         moveDirection,
         speed,
-        isPaused,
         isAlive,
-        gameLevel,
-        restOfGameControls,
+        isPaused,
         setGameControls,
     ]);
 
