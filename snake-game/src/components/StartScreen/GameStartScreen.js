@@ -1,7 +1,7 @@
 import React from "react";
 import GameInstructions from "./GameInstructions";
 import ScoreBoard from "./ScoreBoard";
-import { handlePlayerNameInput } from "../utils/utils";
+import { handlePlayerNameInput } from "../../utils/utils";
 
 function GameStartScreen({ gameControls, play, setGameControls }) {
     const { score, gameHistory, startButtonName, playerName } =

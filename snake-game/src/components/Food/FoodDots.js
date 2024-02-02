@@ -31,7 +31,7 @@ function FoodDots({ isPaused, foodDots, setGameObjects }) {
         return () => {
             clearTimeout(foodDotGenerate);
         };
-    }, [isPaused, setGameObjects]);
+    }, [isPaused, setGameObjects, foodDots.length]);
 
     useEffect(() => {
         if (!isPaused && foodDots.length > 6) {
