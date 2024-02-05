@@ -2,10 +2,11 @@ import "./App.css";
 import { play } from "./utils/gameLogic";
 import GameBoard from "./components/Board/GameBoard";
 import GameStartScreen from "./components/StartScreen/GameStartScreen";
-import { useGameControls } from "./utils/customHooks";
+import { GameControlsContext } from "./ContextProviders";
+import { useContext } from "react";
 
 function App() {
-    const { gameControls, setGameControls } = useGameControls();
+    const { gameControls, setGameControls } = useContext(GameControlsContext);
 
     return (
         <div className="app">
