@@ -229,6 +229,12 @@ const LEVEL_3 = 15;
 const OFFSET_X_HALF = 16;
 const OFFSET_X_FULL = 32;
 
+const PLAY_BUTTON_TEXT = "Play";
+const PLAY_AGAIN_BUTTON_TEXT = "Play again"
+
+const SPEED_STEP_LVL_2 = 5;
+const SPEED_STEP_LVL_N = 10;
+
 export {
     BOARD_MIN,
     BOARD_MAX,
@@ -243,5 +249,9 @@ export {
     LEVEL_2,
     LEVEL_3,
     OFFSET_X_HALF,
-    OFFSET_X_FULL
+    OFFSET_X_FULL,
+    PLAY_BUTTON_TEXT,
+    PLAY_AGAIN_BUTTON_TEXT,
+    SPEED_STEP_LVL_2,
+    SPEED_STEP_LVL_N
 };

@@ -1,14 +1,27 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { getRandomCoordinates } from "../../utils/gameLogic";
 import { v4 as uuidv4 } from "uuid";
 import Food from "./Food";
+import {
+    FoodObstaclesContext,
+    GameControlsContext,
+} from "../../ContextProviders";
 
-function FoodDots({ isPaused, foodDots, setFoodDots }) {
+function FoodDots() {
+    const { foodDots, setFoodDots, obstacles } =
+        useContext(FoodObstaclesContext);
+    const { gameControls } = useContext(GameControlsContext);
+    const { isPaused } = gameControls;
+
     useEffect(() => {
         const foodDotGenerate = setTimeout(() => {
             if (!isPaused) {
                 setFoodDots((prev) => {
-                    const [randomX, randomY] = getRandomCoordinates([], [], []);
+                    const [randomX, randomY] = getRandomCoordinates(
+                        [],
+                        prev,
+                        obstacles
+                    );
                     return [
                         ...prev,
                         {
@@ -24,7 +37,7 @@ function FoodDots({ isPaused, foodDots, setFoodDots }) {
         return () => {
             clearTimeout(foodDotGenerate);
         };
-    }, [isPaused, setFoodDots, foodDots.length]);
+    }, [isPaused, setFoodDots, foodDots.length, obstacles]);
 
     useEffect(() => {
         if (!isPaused && foodDots.length > 6) {

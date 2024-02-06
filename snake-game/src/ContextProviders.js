@@ -1,6 +1,6 @@
 import React, { createContext, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { GAME_HISOTRY } from "./utils/constants";
+import { GAME_HISOTRY, PLAY_BUTTON_TEXT } from "./utils/constants";
 
 const initalHistory =  JSON.parse(localStorage.getItem(GAME_HISOTRY)) || [];
 
@@ -23,7 +23,7 @@ export const FoodObstacleProvider = ({ children }) => {
 export const GameControlsProvider = ({ children }) => {
     const [gameControls, setGameControls] = useState({
         alive: false,
-        startButtonName: "Play",
+        startButtonName: PLAY_BUTTON_TEXT,
         score: 0,
         isPaused: true,
         gameLevel: 1,

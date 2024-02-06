@@ -5,6 +5,9 @@ import {
     OBSTACLE_SIZE,
     MOVE_DIRECTIONS,
     GAME_HISOTRY,
+    PLAY_AGAIN_BUTTON_TEXT,
+    SPEED_STEP_LVL_2,
+    SPEED_STEP_LVL_N,
 } from "./constants";
 
 export function getRandomCoordinates(snakeDots, foodDots, obstacles) {
@@ -64,12 +67,8 @@ export function gameRun(gameParams, gameStateSetters) {
         gameParams;
     let currentHead = snakeDots[snakeDots.length - 1];
 
-    const {
-        setSnakeDots,
-        setFoodDots,
-        setSpeed,
-        setGameControls,
-    } = gameStateSetters;
+    const { setSnakeDots, setFoodDots, setSpeed, setGameControls } =
+        gameStateSetters;
 
     // Check if fruit eaten
     const fruitEaten = checkIfEat(snakeDots, foodDots, setFoodDots);
@@ -102,13 +101,13 @@ export function gameRun(gameParams, gameStateSetters) {
 
     // Control on snake out of border
     if (gameControls.gameLevel <= 2) {
-        onOutOfBounds(snakeDots, setSnakeDots);
+        snakeWrap(snakeDots, setSnakeDots);
     } else {
         checkIfOutOfBoard(snakeDots, gameControls, setGameControls);
     }
 
     //Check self collision
-    checkIfSelfCollapsed(snakeDots, currentHead, gameControls, setGameControls);
+    checkIfSelfCollapsed(snakeDots, gameControls, setGameControls);
 
     //Check collision with obstacle
     if (gameControls.gameLevel > 1) {
@@ -130,7 +129,7 @@ export function play(setGameControls, playerName) {
     setGameControls((prevState) => {
         return {
             ...prevState,
-            startButton: "Play again",
+            startButton: PLAY_AGAIN_BUTTON_TEXT,
             score: 0,
             alive: true,
             isPaused: false,
@@ -241,7 +240,8 @@ function checkIfEat(snakeDots, foodDots, setFoodDots) {
     return false;
 }
 
-function onOutOfBounds(snakeDots, setSnakeDots) {
+//teleport snake on opposite side if out of bounds on level < 3
+function snakeWrap(snakeDots, setSnakeDots) {
     let [headX, headY] = snakeDots[snakeDots.length - 1];
     if (
         headX >= BOARD_MAX ||
@@ -271,14 +271,14 @@ function onOutOfBounds(snakeDots, setSnakeDots) {
     }
 }
 
-function checkIfSelfCollapsed(snakeDots, head, gameControls, setGameControls) {
+function checkIfSelfCollapsed(snakeDots, gameControls, setGameControls) {
     let snake = [...snakeDots];
     const [headTopPosition, headLeftPosition] = snakeDots[snakeDots.length - 1];
 
     snake.pop();
 
     const snakeSelfCollided = snake.some(
-        ([snakeDotTop, snakeDotLeft], index) =>
+        ([snakeDotTop, snakeDotLeft]) =>
             headTopPosition === snakeDotTop && headLeftPosition === snakeDotLeft
     );
 
@@ -290,7 +290,9 @@ function checkIfSelfCollapsed(snakeDots, head, gameControls, setGameControls) {
 function increaseSpeed(speed, gameLevel, setSpeed) {
     if (speed > 10) {
         setSpeed((prevSpeed) =>
-            gameLevel === 2 ? prevSpeed - 5 : prevSpeed - 10
+            gameLevel === 2
+                ? prevSpeed - SPEED_STEP_LVL_2
+                : prevSpeed - SPEED_STEP_LVL_N
         );
     }
 }
@@ -338,7 +340,7 @@ function onGameOver(gameControls, setGameControls) {
             isPaused: true,
             gameHistory: [...prevState.gameHistory, currentGame],
             playerName: "",
-            startButtonName: "Play again",
+            startButtonName: PLAY_AGAIN_BUTTON_TEXT,
         };
     });
 }

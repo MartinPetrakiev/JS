@@ -78,6 +78,7 @@ function Snake({ foodDots,  setFoodDots, obstacles, gameControls, setGameControl
         gameControls,
         setGameControls,
     ]);
+    
     return (
         <>
             {snakeDots?.map((snakeDot, index, allDots) => (
