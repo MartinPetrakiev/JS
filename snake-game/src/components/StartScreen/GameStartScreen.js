@@ -2,11 +2,12 @@ import React from "react";
 import GameInstructions from "./GameInstructions";
 import ScoreBoard from "./ScoreBoard";
 import { handlePlayerNameInput } from "../../utils/utils";
+import { useGameControls } from "../../ContextProviders";
 
-function GameStartScreen({ gameControls, play, setGameControls }) {
-    const { score, gameHistory, startButtonName, playerName } =
-        gameControls;
-        
+function GameStartScreen({ play }) {
+    const { gameControls, setGameControls } = useGameControls();
+    const { score, gameHistory, startButtonName, playerName } = gameControls;
+
     return (
         <div>
             <GameInstructions />

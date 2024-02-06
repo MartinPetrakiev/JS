@@ -1,11 +1,11 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { GAME_HISOTRY, PLAY_BUTTON_TEXT } from "./utils/constants";
 
 const initalHistory =  JSON.parse(localStorage.getItem(GAME_HISOTRY)) || [];
 
-export const FoodObstaclesContext = createContext();
-export const GameControlsContext = createContext();
+const FoodObstaclesContext = createContext();
+const GameControlsContext = createContext();
 
 export const FoodObstacleProvider = ({ children }) => {
     const [foodDots, setFoodDots] = useState([{ key: uuidv4(), x: 10, y: 10 }]);
@@ -19,6 +19,8 @@ export const FoodObstacleProvider = ({ children }) => {
         </FoodObstaclesContext.Provider>
     );
 };
+
+export const useFoodObstacles = () => useContext(FoodObstaclesContext);
 
 export const GameControlsProvider = ({ children }) => {
     const [gameControls, setGameControls] = useState({
@@ -37,3 +39,5 @@ export const GameControlsProvider = ({ children }) => {
         </GameControlsContext.Provider>
     );
 };
+
+export const useGameControls = () => useContext(GameControlsContext);

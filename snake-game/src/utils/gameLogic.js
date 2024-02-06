@@ -10,26 +10,26 @@ import {
     SPEED_STEP_LVL_N,
 } from "./constants";
 
-export function getRandomCoordinates(snakeDots, foodDots, obstacles) {
+export function getRandomCoordinates(foodDots, obstacles) {
     let min = BOARD_MIN + 1;
     let max = BOARD_MAX - 2;
     let x, y;
+
     do {
         x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
         y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
-    } while (
-        checkCollisionOnObjectBuild([x, y], snakeDots, foodDots, obstacles)
-    );
+    } while (checkCollisionOnObjectBuild([x, y], foodDots, obstacles));
 
     return [x, y];
 }
 
-export function generateRandomObstacle(snakeDots, foodDots) {
+export function generateRandomObstacle(foodDots) {
     let x, y;
+
     do {
         x = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
         y = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
-    } while (checkCollisionOnObjectBuild([x, y], snakeDots, foodDots));
+    } while (checkCollisionOnObjectBuild([x, y], foodDots));
 
     return [x, y];
 }
@@ -103,7 +103,7 @@ export function gameRun(gameParams, gameStateSetters) {
     if (gameControls.gameLevel <= 2) {
         snakeWrap(snakeDots, setSnakeDots);
     } else {
-        checkIfOutOfBoard(snakeDots, gameControls, setGameControls);
+        checkBoardEdgeCollision(snakeDots, gameControls, setGameControls);
     }
 
     //Check self collision
@@ -177,7 +177,7 @@ function checkCollisionWithObstacle(
     }
 }
 
-function checkIfOutOfBoard(snakeDots, gameControls, setGameControls) {
+function checkBoardEdgeCollision(snakeDots, gameControls, setGameControls) {
     let [topPosition, leftPosition] = snakeDots[snakeDots.length - 1];
     if (
         topPosition === BOARD_MAX ||
@@ -191,16 +191,10 @@ function checkIfOutOfBoard(snakeDots, gameControls, setGameControls) {
 
 function checkCollisionOnObjectBuild(
     [inputTop, inputLeft],
-    snakeDots,
     foodDots,
     obstacles
 ) {
     if (
-        (snakeDots &&
-            snakeDots.some(
-                ([dotTop, dotLeft]) =>
-                    dotTop === inputTop && dotLeft === inputLeft
-            )) ||
         (foodDots &&
             foodDots.some(
                 ({ dotTop, dotLeft }) =>

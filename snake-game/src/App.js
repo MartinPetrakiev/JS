@@ -2,27 +2,19 @@ import "./App.css";
 import { play } from "./utils/gameLogic";
 import GameBoard from "./components/Board/GameBoard";
 import GameStartScreen from "./components/StartScreen/GameStartScreen";
-import { GameControlsContext } from "./ContextProviders";
-import { useContext } from "react";
+import { useGameControls } from "./ContextProviders";
 
 function App() {
-    const { gameControls, setGameControls } = useContext(GameControlsContext);
+    const { gameControls, setGameControls } = useGameControls();
 
     return (
         <div className="app">
             <h1 className="title">Snake Game</h1>
             {gameControls.alive ? (
-                <GameBoard
-                    gameControls={gameControls}
-                    setGameControls={setGameControls}
-                />
+                <GameBoard />
             ) : (
                 <GameStartScreen
-                    gameControls={gameControls}
-                    setGameControls={setGameControls}
-                    play={() =>
-                        play(setGameControls, gameControls.playerName)
-                    }
+                    play={() => play(setGameControls, gameControls.playerName)}
                 />
             )}
         </div>

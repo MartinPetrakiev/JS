@@ -1,8 +1,9 @@
 import React from "react";
 import BoardObjects from "./BoardObjects";
-import { FoodObstacleProvider } from "../../ContextProviders";
+import { FoodObstacleProvider, useGameControls } from "../../ContextProviders";
 
-function GameBoard({ gameControls, setGameControls }) {
+function GameBoard() {
+    const { gameControls } = useGameControls();
     return (
         <div>
             <div className="box">
@@ -10,10 +11,7 @@ function GameBoard({ gameControls, setGameControls }) {
             </div>
             <svg className="game-board">
                 <FoodObstacleProvider>
-                    <BoardObjects
-                        gameControls={gameControls}
-                        setGameControls={setGameControls}
-                    />
+                    <BoardObjects />
                 </FoodObstacleProvider>
             </svg>
         </div>

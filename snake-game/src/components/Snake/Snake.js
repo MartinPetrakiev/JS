@@ -9,8 +9,11 @@ import {
 } from "../../utils/constants";
 import { gameRun, moveSnake } from "../../utils/gameLogic";
 import { onKeyDown } from "../../utils/utils";
+import { useFoodObstacles, useGameControls } from "../../ContextProviders";
 
-function Snake({ foodDots,  setFoodDots, obstacles, gameControls, setGameControls }) {
+function Snake() {
+    const { gameControls, setGameControls } = useGameControls();
+    const { foodDots,  setFoodDots, obstacles } = useFoodObstacles();
     const [snakeDots, setSnakeDots] = useState(INITIAL_SNAKE_DOTS);
     const [speed, setSpeed] = useState(INITIAL_GAME_SPEED);
     const [moveDirection, setMoveDirection] = useState(MOVE_DIRECTIONS.RIGHT);
@@ -78,7 +81,7 @@ function Snake({ foodDots,  setFoodDots, obstacles, gameControls, setGameControl
         gameControls,
         setGameControls,
     ]);
-    
+
     return (
         <>
             {snakeDots?.map((snakeDot, index, allDots) => (

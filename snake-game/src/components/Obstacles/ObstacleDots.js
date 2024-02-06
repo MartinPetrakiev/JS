@@ -1,16 +1,12 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import ObstacleItem from "./ObstacleItem";
 import { generateRandomObstacle } from "../../utils/gameLogic";
 import { LEVEL_2, LEVEL_3 } from "../../utils/constants";
-import {
-    FoodObstaclesContext,
-    GameControlsContext,
-} from "../../ContextProviders";
+import { useFoodObstacles, useGameControls } from "../../ContextProviders";
 
 function ObstacleDots() {
-    const { foodDots, obstacles, setObstacles } =
-        useContext(FoodObstaclesContext);
-    const { gameControls } = useContext(GameControlsContext);
+    const { foodDots, obstacles, setObstacles } = useFoodObstacles();
+    const { gameControls } = useGameControls();
     const { gameLevel } = gameControls;
 
     const foodDotsRef = useRef(foodDots);
@@ -23,7 +19,7 @@ function ObstacleDots() {
         const numberOfObstacles = gameLevel > 2 ? LEVEL_3 : LEVEL_2;
 
         const newObstacles = Array.from({ length: numberOfObstacles }, () =>
-            generateRandomObstacle([], foodDotsRef.current)
+            generateRandomObstacle(foodDotsRef.current)
         );
 
         setObstacles(newObstacles);
