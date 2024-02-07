@@ -9,7 +9,7 @@ function GameBoard() {
             <div className="box">
                 <span className="content">{gameControls.score}</span>
             </div>
-            <svg className="game-board">
+            <svg className="game-board" viewBox="0 0 640 640">
                 <FoodObstacleProvider>
                     <BoardObjects />
                 </FoodObstacleProvider>

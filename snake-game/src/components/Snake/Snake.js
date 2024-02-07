@@ -8,12 +8,12 @@ import {
     MOVE_DIRECTIONS,
 } from "../../utils/constants";
 import { gameRun, moveSnake } from "../../utils/gameLogic";
-import { onKeyDown } from "../../utils/utils";
+import { UseDoubleTapCallback, UseHandleTouchStart, onKeyDown } from "../../utils/utils";
 import { useFoodObstacles, useGameControls } from "../../ContextProviders";
 
 function Snake() {
     const { gameControls, setGameControls } = useGameControls();
-    const { foodDots,  setFoodDots, obstacles } = useFoodObstacles();
+    const { foodDots, setFoodDots, obstacles } = useFoodObstacles();
     const [snakeDots, setSnakeDots] = useState(INITIAL_SNAKE_DOTS);
     const [speed, setSpeed] = useState(INITIAL_GAME_SPEED);
     const [moveDirection, setMoveDirection] = useState(MOVE_DIRECTIONS.RIGHT);
@@ -27,6 +27,13 @@ function Snake() {
         [isPaused, setGameControls]
     );
 
+    const handleTouchStartCallback = UseHandleTouchStart(
+        isPaused,
+        setMoveDirection
+    );
+
+    const handleDoubleTap = UseDoubleTapCallback(isPaused, setGameControls);
+
     useEffect(() => {
         document.addEventListener("keydown", handleKeyDown);
 
@@ -36,15 +43,30 @@ function Snake() {
     }, [handleKeyDown]);
 
     useEffect(() => {
+        document.addEventListener("touchstart", handleTouchStartCallback);
+
+        return () => {
+            document.removeEventListener(
+                "touchstart",
+                handleTouchStartCallback
+            );
+        };
+    }, [isPaused, handleTouchStartCallback]);
+
+    useEffect(() => {
+        document.addEventListener("touchend", handleDoubleTap);
+
+        return () => {
+            document.removeEventListener("touchend", handleDoubleTap);
+        };
+    }, [handleDoubleTap]);
+
+    useEffect(() => {
         let run;
 
         if (!isPaused && isAlive) {
             run = setInterval(() => {
-                moveSnake(
-                    moveDirection,
-                    snakeDots,
-                    setSnakeDots
-                );
+                moveSnake(moveDirection, snakeDots, setSnakeDots);
 
                 gameRun(
                     {
