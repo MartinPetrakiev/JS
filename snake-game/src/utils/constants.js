@@ -235,6 +235,19 @@ const PLAY_AGAIN_BUTTON_TEXT = "Play again"
 const SPEED_STEP_LVL_2 = 5;
 const SPEED_STEP_LVL_N = 10;
 
+const RAINBOW_COLORS = [
+    "#FF0000",
+    "#FF7F00",
+    "#FFFF00",
+    "#00FF00",
+    "#0000FF",
+    "#4B0082",
+    "#9400D3",
+    "#FFA500",
+    "#00FFFF",
+    "#800080",
+];
+
 export {
     BOARD_MIN,
     BOARD_MAX,
@@ -253,5 +266,6 @@ export {
     PLAY_BUTTON_TEXT,
     PLAY_AGAIN_BUTTON_TEXT,
     SPEED_STEP_LVL_2,
-    SPEED_STEP_LVL_N
+    SPEED_STEP_LVL_N,
+    RAINBOW_COLORS
 };

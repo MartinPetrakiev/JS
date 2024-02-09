@@ -3,7 +3,7 @@ import { buildSnakeTailPoints } from "../../utils/utils";
 
 function SnakeTail({ snakeDot, snakeDotAdjacent }) {
     return (
-        <polygon
+        <polygon data-testid="snake-tail"
             className="snake-item snake-tail"
             points={buildSnakeTailPoints(snakeDot, snakeDotAdjacent)}
         />

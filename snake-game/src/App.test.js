@@ -27,8 +27,6 @@ test("renders start screen when game is not alive", () => {
 test("should render GameBoard component if gameControls.alive is true", () => {
     mockContextValue.alive = true;
 
-    console.log(mockContextValue);
-
     render(
         <GameControlsProvider initialValue={mockContextValue}>
             <App />

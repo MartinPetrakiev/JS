@@ -71,9 +71,9 @@
     fill: lime;
 }
 
-.snake-body {
+/* .snake-body {
     fill: mediumseagreen;
-}
+} */
 
 .snake-item {
     position: absolute;
