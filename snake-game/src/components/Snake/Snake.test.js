@@ -1,8 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import Snake from "./Snake";
 import {
-    FoodObstacleProvider,
+    FoodProvider,
     GameControlsProvider,
+    ObstacleProvider,
 } from "../../ContextProviders";
 import { v4 as uuidv4 } from "uuid";
 import SnakeTail from "./SnakeTail";
@@ -42,19 +43,18 @@ describe("Snake", () => {
 
         render(
             <GameControlsProvider initialValue={mockGameControls}>
-                <FoodObstacleProvider
-                    initialFoodDots={mockFoodDots}
-                    initialObstacles={[]}
-                >
-                    <Snake
-                        snakeDots={snakeDots}
-                        setSnakeDots={setSnakeDots}
-                        speed={speed}
-                        setSpeed={setSpeed}
-                        moveDirection={moveDirection}
-                        setMoveDirection={setMoveDirection}
-                    />
-                </FoodObstacleProvider>
+                <ObstacleProvider initialObstacles={[]}>
+                    <FoodProvider initialFoodDots={mockFoodDots}>
+                        <Snake
+                            snakeDots={snakeDots}
+                            setSnakeDots={setSnakeDots}
+                            speed={speed}
+                            setSpeed={setSpeed}
+                            moveDirection={moveDirection}
+                            setMoveDirection={setMoveDirection}
+                        />
+                    </FoodProvider>
+                </ObstacleProvider>
             </GameControlsProvider>
         );
 
@@ -82,24 +82,23 @@ describe("Snake", () => {
         const setMoveDirection = jest.fn();
 
         render(<SnakeBodyItem snakeDot={[2, 4]} />);
-        render(<SnakeTail snakeDot={[2, 2]} snakeDotAdjacent={[2,4]} />);
-        render(<SnakeHead x={2} y={8}/>);
+        render(<SnakeTail snakeDot={[2, 2]} snakeDotAdjacent={[2, 4]} />);
+        render(<SnakeHead x={2} y={8} />);
 
         render(
             <GameControlsProvider initialValue={mockGameControls}>
-                <FoodObstacleProvider
-                    initialFoodDots={mockFoodDots}
-                    initialObstacles={[]}
-                >
-                    <Snake
-                        snakeDots={snakeDots}
-                        setSnakeDots={setSnakeDots}
-                        speed={speed}
-                        setSpeed={setSpeed}
-                        moveDirection={moveDirection}
-                        setMoveDirection={setMoveDirection}
-                    />
-                </FoodObstacleProvider>
+                <ObstacleProvider initialObstacles={[]}>
+                    <FoodProvider initialFoodDots={mockFoodDots}>
+                        <Snake
+                            snakeDots={snakeDots}
+                            setSnakeDots={setSnakeDots}
+                            speed={speed}
+                            setSpeed={setSpeed}
+                            moveDirection={moveDirection}
+                            setMoveDirection={setMoveDirection}
+                        />
+                    </FoodProvider>
+                </ObstacleProvider>
             </GameControlsProvider>
         );
 

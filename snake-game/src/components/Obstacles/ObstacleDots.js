@@ -1,7 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import ObstacleItem from "./ObstacleItem";
-import { generateRandomObstacle } from "../../utils/gameLogic";
-import { LEVEL_2, LEVEL_3 } from "../../utils/constants";
 import {
     useFoodContext,
     useGameControls,
@@ -22,8 +20,7 @@ function ObstacleDots() {
     }, [foodDots]);
 
     useEffect(() => {
-        const newObstacles = generateObstacles(gameLevel, foodDotsRef);
-        setObstacles(newObstacles);
+        generateObstacles(gameLevel, foodDotsRef, setObstacles);
     }, [gameLevel, setObstacles]);
 
     return (

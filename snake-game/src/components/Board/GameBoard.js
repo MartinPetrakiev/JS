@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 
 function GameBoard() {
     const { gameControls } = useGameControls();
-    const initialFoodDots = [{ key: uuidv4(), x: 10, y: 10 }];
+    const initialFoodDots = [{ key: uuidv4(), x: 10, y: 10, disco: false }];
 
     return (
         <div>

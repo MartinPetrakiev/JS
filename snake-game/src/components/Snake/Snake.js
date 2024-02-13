@@ -3,11 +3,12 @@ import SnakeTail from "./SnakeTail";
 import SnakeHead from "./SnakeHead";
 import SnakeBodyItem from "./SnakeBodyItem";
 import {
+    GAME_OBJECT_TYPES,
     INITIAL_GAME_SPEED,
     INITIAL_SNAKE_DOTS,
     MOVE_DIRECTIONS,
 } from "../../utils/constants";
-import { checkOverlap, gameRun, moveSnake } from "../../utils/gameLogic";
+import { checkSnakeOverlap, gameRun, moveSnake } from "../../utils/gameLogic";
 import {
     generateFoodDots,
     generateObstacles,
@@ -30,10 +31,16 @@ function Snake() {
     const [speed, setSpeed] = useState(INITIAL_GAME_SPEED);
     const [moveDirection, setMoveDirection] = useState(MOVE_DIRECTIONS.RIGHT);
 
-    const { alive: isAlive, isPaused } = gameControls;
+    const { alive: isAlive, isPaused, discoMode } = gameControls;
 
-    useHandleKeyDown(onKeyDown, isPaused, setMoveDirection, setGameControls);
-    useHandleTouchStart(isPaused, setMoveDirection);
+    useHandleKeyDown(
+        onKeyDown,
+        isPaused,
+        moveDirection,
+        setMoveDirection,
+        setGameControls
+    );
+    useHandleTouchStart(isPaused, moveDirection, setMoveDirection);
     useHandleDoubleTap(isPaused, setGameControls);
 
     useEffect(() => {
@@ -41,24 +48,40 @@ function Snake() {
 
         if (!isPaused && isAlive) {
             run = setInterval(() => {
-                let snakeOverlapsWithFoodDot = snakeDots.some((dot) =>
-                    checkOverlap(dot, foodDots)
-                );
-
-                let snakeOverlapsWithObstacle = snakeDots.some((dot) =>
-                    checkOverlap(dot, null, obstacles)
-                );
-
-                if (snakeOverlapsWithFoodDot) {
-                    generateFoodDots(isPaused, setFoodDots, obstacles);
-                }
-
-                if (snakeOverlapsWithObstacle) {
-                    const newObstacles = generateObstacles(gameControls.gameLevel, foodDots);
-                    setObstacles(newObstacles);
-                }
-
                 moveSnake(moveDirection, snakeDots, setSnakeDots);
+
+                let overlappingObject = null;
+
+                do {
+                    overlappingObject = checkSnakeOverlap(
+                        snakeDots,
+                        foodDots,
+                        obstacles
+                    );
+
+                    if (overlappingObject) {
+                        switch (overlappingObject) {
+                            case GAME_OBJECT_TYPES.OBSTACLE:
+                                generateObstacles(
+                                    gameControls.gameLevel,
+                                    foodDots,
+                                    setObstacles
+                                );
+                                break;
+                            case GAME_OBJECT_TYPES.FOOD:
+                                generateFoodDots(
+                                    gameControls.isPaused,
+                                    setFoodDots,
+                                    obstacles
+                                );
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    overlappingObject = "";
+                } while (overlappingObject);
 
                 gameRun(
                     {
@@ -72,6 +95,7 @@ function Snake() {
                     {
                         setSnakeDots,
                         setFoodDots,
+                        setObstacles,
                         setMoveDirection,
                         setSpeed,
                         setGameControls,
@@ -108,7 +132,10 @@ function Snake() {
                         />
                     )}
                     {index !== 0 && index !== allDots.length - 1 && (
-                        <SnakeBodyItem snakeDot={snakeDot} />
+                        <SnakeBodyItem
+                            snakeDot={snakeDot}
+                            discoMode={discoMode}
+                        />
                     )}
                     {index === allDots.length - 1 && (
                         <SnakeHead x={snakeDot[1]} y={snakeDot[0]} />

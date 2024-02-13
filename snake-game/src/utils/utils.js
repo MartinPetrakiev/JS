@@ -10,8 +10,24 @@ import {
 import { generateRandomObstacle, getRandomCoordinates } from "./gameLogic";
 import { v4 as uuidv4 } from "uuid";
 
-export function onKeyDown(e, isPaused, setMoveDirection, setGameControls) {
+export function onKeyDown(
+    e,
+    isPaused,
+    moveDirection,
+    setMoveDirection,
+    setGameControls
+) {
     const { UP, DOWN, LEFT, RIGHT, PAUSE } = KEYBOARD_KEYS;
+    const oppositeDirections = {
+        [RIGHT]: MOVE_DIRECTIONS.LEFT,
+        [LEFT]: MOVE_DIRECTIONS.RIGHT,
+        [DOWN]: MOVE_DIRECTIONS.UP,
+        [UP]: MOVE_DIRECTIONS.DOWN,
+    };
+
+    if (moveDirection === oppositeDirections[e.keyCode]) {
+        return;
+    }
 
     switch (e.keyCode) {
         case UP:
@@ -39,7 +55,11 @@ export function onKeyDown(e, isPaused, setMoveDirection, setGameControls) {
     }
 }
 
-export function UseHandleTouchStart(isPaused, setMoveDirection) {
+export function UseHandleTouchStart(
+    isPaused,
+    currentDirection,
+    setMoveDirection
+) {
     return useCallback(
         (e) => {
             if (!isPaused) {
@@ -56,7 +76,8 @@ export function UseHandleTouchStart(isPaused, setMoveDirection) {
                         startX,
                         startY,
                         endX,
-                        endY
+                        endY,
+                        currentDirection
                     );
 
                     switch (swipeDirection) {
@@ -84,7 +105,7 @@ export function UseHandleTouchStart(isPaused, setMoveDirection) {
                 };
             }
         },
-        [isPaused, setMoveDirection]
+        [isPaused, currentDirection, setMoveDirection]
     );
 }
 
@@ -108,19 +129,40 @@ export const UseDoubleTapCallback = (isPaused, setGameControls) => {
     }, [isPaused, setGameControls]);
 };
 
-export const calculateSwipeDirection = (startX, startY, endX, endY) => {
+export const calculateSwipeDirection = (
+    startX,
+    startY,
+    endX,
+    endY,
+    currentDirection
+) => {
     const deltaX = endX - startX;
     const deltaY = endY - startY;
     const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
 
+    const oppositeDirections = {
+        [MOVE_DIRECTIONS.RIGHT]: MOVE_DIRECTIONS.LEFT,
+        [MOVE_DIRECTIONS.LEFT]: MOVE_DIRECTIONS.RIGHT,
+        [MOVE_DIRECTIONS.DOWN]: MOVE_DIRECTIONS.UP,
+        [MOVE_DIRECTIONS.UP]: MOVE_DIRECTIONS.DOWN,
+    };
+
     if (angle >= -45 && angle < 45) {
-        return MOVE_DIRECTIONS.RIGHT;
+        return MOVE_DIRECTIONS.RIGHT === oppositeDirections[currentDirection]
+            ? currentDirection
+            : MOVE_DIRECTIONS.RIGHT;
     } else if (angle >= 45 && angle < 135) {
-        return MOVE_DIRECTIONS.DOWN;
+        return MOVE_DIRECTIONS.DOWN === oppositeDirections[currentDirection]
+            ? currentDirection
+            : MOVE_DIRECTIONS.DOWN;
     } else if (angle >= -135 && angle < -45) {
-        return MOVE_DIRECTIONS.UP;
+        return MOVE_DIRECTIONS.UP === oppositeDirections[currentDirection]
+            ? currentDirection
+            : MOVE_DIRECTIONS.UP;
     } else {
-        return MOVE_DIRECTIONS.LEFT;
+        return MOVE_DIRECTIONS.LEFT === oppositeDirections[currentDirection]
+            ? currentDirection
+            : MOVE_DIRECTIONS.LEFT;
     }
 };
 
@@ -202,31 +244,34 @@ export const generateFoodDots = (isPaused, setFoodDots, obstacles) =>
                         key: uuidv4(),
                         x: randomX,
                         y: randomY,
+                        disco: getRandomInt(1, 100) > 50,
                     },
                 ];
             });
         }
     }, 5000);
 
-export const generateObstacles = (gameLevel, foodDotsRef) => {
+export const generateObstacles = (gameLevel, foodDotsRef, setObstacles) => {
     const numberOfObstacles = gameLevel > 2 ? LEVEL_3 : LEVEL_2;
     const newObstacles = Array.from({ length: numberOfObstacles }, () =>
         generateRandomObstacle(foodDotsRef)
     );
-    return newObstacles;
+    
+    setObstacles(newObstacles);
 };
 
 export const useHandleKeyDown = (
     onKeyDown,
     isPaused,
+    moveDirection,
     setMoveDirection,
     setGameControls
 ) => {
     const handleKeyDown = useCallback(
         (e) => {
-            onKeyDown(e, isPaused, setMoveDirection, setGameControls);
+            onKeyDown(e, isPaused, moveDirection, setMoveDirection, setGameControls);
         },
-        [isPaused, setMoveDirection, setGameControls, onKeyDown]
+        [isPaused, moveDirection,  setMoveDirection, setGameControls, onKeyDown]
     );
 
     useEffect(() => {
@@ -238,9 +283,14 @@ export const useHandleKeyDown = (
     }, [handleKeyDown]);
 };
 
-export const useHandleTouchStart = (isPaused, setMoveDirection) => {
+export const useHandleTouchStart = (
+    isPaused,
+    currentDirection,
+    setMoveDirection
+) => {
     const handleTouchStartCallback = UseHandleTouchStart(
         isPaused,
+        currentDirection,
         setMoveDirection
     );
 

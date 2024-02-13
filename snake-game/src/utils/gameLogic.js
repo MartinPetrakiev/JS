@@ -8,6 +8,7 @@ import {
     PLAY_AGAIN_BUTTON_TEXT,
     SPEED_STEP_LVL_2,
     SPEED_STEP_LVL_N,
+    GAME_OBJECT_TYPES,
 } from "./constants";
 
 export function getRandomCoordinates(foodDots, obstacles) {
@@ -40,16 +41,16 @@ export function moveSnake(moveDirection, snakeDots, setSnakeDots) {
     const [topPosition, leftPosition] = head;
 
     switch (moveDirection) {
-        case "RIGHT":
+        case MOVE_DIRECTIONS.RIGHT:
             head = [topPosition, leftPosition + SNAKE_DOT_SIZE];
             break;
-        case "LEFT":
+        case MOVE_DIRECTIONS.LEFT:
             head = [topPosition, leftPosition - SNAKE_DOT_SIZE];
             break;
-        case "DOWN":
+        case MOVE_DIRECTIONS.DOWN:
             head = [topPosition + SNAKE_DOT_SIZE, leftPosition];
             break;
-        case "UP":
+        case MOVE_DIRECTIONS.UP:
             head = [topPosition - SNAKE_DOT_SIZE, leftPosition];
             break;
         default:
@@ -67,11 +68,20 @@ export function gameRun(gameParams, gameStateSetters) {
         gameParams;
     let currentHead = snakeDots[snakeDots.length - 1];
 
-    const { setSnakeDots, setFoodDots, setSpeed, setGameControls } =
-        gameStateSetters;
+    const {
+        setSnakeDots,
+        setFoodDots,
+        setSpeed,
+        setGameControls,
+    } = gameStateSetters;
 
     // Check if fruit eaten
-    const fruitEaten = checkIfEat(snakeDots, foodDots, setFoodDots);
+    const fruitEaten = checkIfEat(
+        snakeDots,
+        foodDots,
+        setFoodDots,
+        setGameControls
+    );
 
     if (fruitEaten) {
         enlargeSnake(snakeDots, moveDirection, setSnakeDots);
@@ -89,7 +99,7 @@ export function gameRun(gameParams, gameStateSetters) {
             };
         });
 
-        if ((score + 10) % 100 === 0) {
+        if ((score + 10) % 50 === 0) {
             setGameControls((prev) => {
                 return {
                     ...prev,
@@ -100,7 +110,7 @@ export function gameRun(gameParams, gameStateSetters) {
     }
 
     // Control on snake out of border
-    if (gameControls.gameLevel <= 2) {
+    if (gameControls.gameLevel <= 2 || gameControls.discoMode) {
         snakeWrap(snakeDots, setSnakeDots);
     } else {
         checkBoardEdgeCollision(snakeDots, gameControls, setGameControls);
@@ -134,8 +144,24 @@ export function play(setGameControls, playerName) {
             alive: true,
             isPaused: false,
             gameLevel: 1,
+            discoMode: false,
         };
     });
+}
+
+export function checkSnakeOverlap(snakeDots, foodDots, obstacles) {
+    let overlappingObject = null;
+
+    for (const [dotTop, dotLeft] of snakeDots) {
+        overlappingObject = checkOverlap(
+            [dotTop, dotLeft],
+            foodDots,
+            obstacles
+        );
+        if (overlappingObject) break;
+    }
+
+    return overlappingObject;
 }
 
 function checkCollisionWithObstacle(
@@ -172,8 +198,15 @@ function checkCollisionWithObstacle(
             obstacleX * 2 === offsetX && obstacleY * 2 === offsetY
     );
 
-    if (obstacleCollidedIndex) {
+    if (obstacleCollidedIndex && !gameControls.discoMode) {
         onGameOver(gameControls, setGameControls);
+    } else if (obstacleCollidedIndex) {
+        setGameControls((prev) => {
+            return {
+                ...prev,
+                discoMode: false,
+            };
+        });
     }
 }
 
@@ -190,27 +223,31 @@ function checkBoardEdgeCollision(snakeDots, gameControls, setGameControls) {
 }
 
 export function checkOverlap([inputTop, inputLeft], foodDots, obstacles) {
+    let overlappingObject = null;
+
     if (
-        (foodDots &&
-            foodDots.length &&
-            foodDots.some(
-                ({ dotTop, dotLeft }) =>
-                    dotTop === inputTop && dotLeft === inputLeft
-            )) ||
-        (obstacles &&
-            obstacles.length &&
-            obstacles.some(
-                ([dotTop, dotLeft]) =>
-                    dotTop === inputTop && dotLeft === inputLeft
-            ))
+        foodDots &&
+        foodDots.length &&
+        foodDots.some(
+            ({ dotTop, dotLeft }) =>
+                dotTop === inputTop && dotLeft === inputLeft
+        )
     ) {
-        return true;
+        overlappingObject = GAME_OBJECT_TYPES.FOOD;
+    } else if (
+        obstacles &&
+        obstacles.length &&
+        obstacles.some(
+            ([dotTop, dotLeft]) => dotTop === inputTop && dotLeft === inputLeft
+        )
+    ) {
+        overlappingObject = GAME_OBJECT_TYPES.OBSTACLE;
     }
 
-    return false;
+    return overlappingObject;
 }
 
-function checkIfEat(snakeDots, foodDots, setFoodDots) {
+function checkIfEat(snakeDots, foodDots, setFoodDots, setGameControls) {
     const head = snakeDots[snakeDots.length - 1];
     const [headY, headX] = head;
 
@@ -225,6 +262,15 @@ function checkIfEat(snakeDots, foodDots, setFoodDots) {
                 ...prevFoodDots.slice(foodCollidedIndex + 1),
             ];
         });
+
+        if (foodDots[foodCollidedIndex].disco) {
+            setGameControls((prev) => {
+                return {
+                    ...prev,
+                    discoMode: true,
+                };
+            });
+        }
 
         return true;
     }
@@ -274,8 +320,15 @@ function checkIfSelfCollapsed(snakeDots, gameControls, setGameControls) {
             headTopPosition === snakeDotTop && headLeftPosition === snakeDotLeft
     );
 
-    if (snakeSelfCollided) {
+    if (snakeSelfCollided && !gameControls.discoMode) {
         onGameOver(gameControls, setGameControls);
+    } else if (snakeSelfCollided) {
+        setGameControls((prev) => {
+            return {
+                ...prev,
+                discoMode: false,
+            };
+        });
     }
 }
 
@@ -333,6 +386,7 @@ function onGameOver(gameControls, setGameControls) {
             gameHistory: [...prevState.gameHistory, currentGame],
             playerName: "",
             startButtonName: PLAY_AGAIN_BUTTON_TEXT,
+            discoMode: false,
         };
     });
 }
