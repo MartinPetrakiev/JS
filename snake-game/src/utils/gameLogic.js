@@ -18,7 +18,7 @@ export function getRandomCoordinates(foodDots, obstacles) {
     do {
         x = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
         y = Math.floor((Math.random() * (max - min + 1) + min) / 2) * 2;
-    } while (checkCollisionOnObjectBuild([x, y], foodDots, obstacles));
+    } while (checkOverlap([x, y], foodDots, obstacles));
 
     return [x, y];
 }
@@ -29,7 +29,7 @@ export function generateRandomObstacle(foodDots) {
     do {
         x = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
         y = Math.floor(Math.random() * (BOARD_MAX / OBSTACLE_SIZE));
-    } while (checkCollisionOnObjectBuild([x, y], foodDots));
+    } while (checkOverlap([x, y], foodDots));
 
     return [x, y];
 }
@@ -189,18 +189,16 @@ function checkBoardEdgeCollision(snakeDots, gameControls, setGameControls) {
     }
 }
 
-function checkCollisionOnObjectBuild(
-    [inputTop, inputLeft],
-    foodDots,
-    obstacles
-) {
+export function checkOverlap([inputTop, inputLeft], foodDots, obstacles) {
     if (
         (foodDots &&
+            foodDots.length &&
             foodDots.some(
                 ({ dotTop, dotLeft }) =>
                     dotTop === inputTop && dotLeft === inputLeft
             )) ||
         (obstacles &&
+            obstacles.length &&
             obstacles.some(
                 ([dotTop, dotLeft]) =>
                     dotTop === inputTop && dotLeft === inputLeft

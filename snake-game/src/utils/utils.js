@@ -1,10 +1,14 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
     KEYBOARD_KEYS,
+    LEVEL_2,
+    LEVEL_3,
     MOVE_DIRECTIONS,
     OFFSET_X_FULL,
     OFFSET_X_HALF,
 } from "./constants";
+import { generateRandomObstacle, getRandomCoordinates } from "./gameLogic";
+import { v4 as uuidv4 } from "uuid";
 
 export function onKeyDown(e, isPaused, setMoveDirection, setGameControls) {
     const { UP, DOWN, LEFT, RIGHT, PAUSE } = KEYBOARD_KEYS;
@@ -183,3 +187,83 @@ export function buildSnakeTailPoints(snakeDot, snakeDotAdjacent) {
 
     return pointsString;
 }
+
+export const generateFoodDots = (isPaused, setFoodDots, obstacles) =>
+    setTimeout(() => {
+        if (!isPaused) {
+            setFoodDots((prev) => {
+                const [randomX, randomY] = getRandomCoordinates(
+                    prev,
+                    obstacles
+                );
+                return [
+                    ...prev,
+                    {
+                        key: uuidv4(),
+                        x: randomX,
+                        y: randomY,
+                    },
+                ];
+            });
+        }
+    }, 5000);
+
+export const generateObstacles = (gameLevel, foodDotsRef) => {
+    const numberOfObstacles = gameLevel > 2 ? LEVEL_3 : LEVEL_2;
+    const newObstacles = Array.from({ length: numberOfObstacles }, () =>
+        generateRandomObstacle(foodDotsRef)
+    );
+    return newObstacles;
+};
+
+export const useHandleKeyDown = (
+    onKeyDown,
+    isPaused,
+    setMoveDirection,
+    setGameControls
+) => {
+    const handleKeyDown = useCallback(
+        (e) => {
+            onKeyDown(e, isPaused, setMoveDirection, setGameControls);
+        },
+        [isPaused, setMoveDirection, setGameControls, onKeyDown]
+    );
+
+    useEffect(() => {
+        document.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [handleKeyDown]);
+};
+
+export const useHandleTouchStart = (isPaused, setMoveDirection) => {
+    const handleTouchStartCallback = UseHandleTouchStart(
+        isPaused,
+        setMoveDirection
+    );
+
+    useEffect(() => {
+        document.addEventListener("touchstart", handleTouchStartCallback);
+
+        return () => {
+            document.removeEventListener(
+                "touchstart",
+                handleTouchStartCallback
+            );
+        };
+    }, [isPaused, handleTouchStartCallback]);
+};
+
+export const useHandleDoubleTap = (isPaused, setGameControls) => {
+    const handleDoubleTap = UseDoubleTapCallback(isPaused, setGameControls);
+
+    useEffect(() => {
+        document.addEventListener("touchend", handleDoubleTap);
+
+        return () => {
+            document.removeEventListener("touchend", handleDoubleTap);
+        };
+    }, [handleDoubleTap]);
+};

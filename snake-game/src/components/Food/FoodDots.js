@@ -1,36 +1,18 @@
 import React, { useEffect } from "react";
-import { getRandomCoordinates } from "../../utils/gameLogic";
-import { v4 as uuidv4 } from "uuid";
 import Food from "./Food";
-import { useFoodObstacles, useGameControls } from "../../ContextProviders";
+import { useFoodContext, useGameControls } from "../../ContextProviders";
+import { generateFoodDots } from "../../utils/utils";
 
 function FoodDots() {
-    const { foodDots, setFoodDots, obstacles } = useFoodObstacles();
+    const { foodDots, setFoodDots, obstacles } = useFoodContext();
     const { gameControls } = useGameControls();
     const { isPaused } = gameControls;
 
     useEffect(() => {
-        const foodDotGenerate = setTimeout(() => {
-            if (!isPaused) {
-                setFoodDots((prev) => {
-                    const [randomX, randomY] = getRandomCoordinates(
-                        prev,
-                        obstacles
-                    );
-                    return [
-                        ...prev,
-                        {
-                            key: uuidv4(),
-                            x: randomX,
-                            y: randomY,
-                        },
-                    ];
-                });
-            }
-        }, 5000);
+        const foodGenerateTimeout = generateFoodDots(isPaused, setFoodDots, obstacles);
 
         return () => {
-            clearTimeout(foodDotGenerate);
+            clearTimeout(foodGenerateTimeout);
         };
     }, [isPaused, setFoodDots, foodDots.length, obstacles]);
 
