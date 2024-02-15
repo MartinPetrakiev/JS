@@ -8,8 +8,14 @@ function App() {
     const { gameControls, setGameControls } = useGameControls();
 
     return (
-        <div className="app">
-            <h1 className="title">Snake Game</h1>
+        <div className={gameControls.discoMode ? "app disco" : "app"}>
+            <h1
+                className={
+                    gameControls.discoMode ? "title white-text" : "title"
+                }
+            >
+                Snake Game
+            </h1>
             {gameControls.alive ? (
                 <GameBoard />
             ) : (

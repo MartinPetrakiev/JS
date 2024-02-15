@@ -14,7 +14,8 @@ const initialGameControlValues = {
     gameLevel: 1,
     playerName: "",
     gameHistory: initialHistory,
-    discoMode: false
+    discoMode: false,
+    discoSpinOn: false
 }
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

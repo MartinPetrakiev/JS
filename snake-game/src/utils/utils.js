@@ -1,6 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
 import {
-    KEYBOARD_KEYS,
     LEVEL_2,
     LEVEL_3,
     MOVE_DIRECTIONS,
@@ -9,125 +7,6 @@ import {
 } from "./constants";
 import { generateRandomObstacle, getRandomCoordinates } from "./gameLogic";
 import { v4 as uuidv4 } from "uuid";
-
-export function onKeyDown(
-    e,
-    isPaused,
-    moveDirection,
-    setMoveDirection,
-    setGameControls
-) {
-    const { UP, DOWN, LEFT, RIGHT, PAUSE } = KEYBOARD_KEYS;
-    const oppositeDirections = {
-        [RIGHT]: MOVE_DIRECTIONS.LEFT,
-        [LEFT]: MOVE_DIRECTIONS.RIGHT,
-        [DOWN]: MOVE_DIRECTIONS.UP,
-        [UP]: MOVE_DIRECTIONS.DOWN,
-    };
-
-    if (moveDirection === oppositeDirections[e.keyCode]) {
-        return;
-    }
-
-    switch (e.keyCode) {
-        case UP:
-            !isPaused && setMoveDirection(MOVE_DIRECTIONS.UP);
-            break;
-        case DOWN:
-            !isPaused && setMoveDirection(MOVE_DIRECTIONS.DOWN);
-            break;
-        case LEFT:
-            !isPaused && setMoveDirection(MOVE_DIRECTIONS.LEFT);
-            break;
-        case RIGHT:
-            !isPaused && setMoveDirection(MOVE_DIRECTIONS.RIGHT);
-            break;
-        case PAUSE:
-            setGameControls((prevState) => {
-                return {
-                    ...prevState,
-                    isPaused: !isPaused,
-                };
-            });
-            break;
-        default:
-            break;
-    }
-}
-
-export function UseHandleTouchStart(
-    isPaused,
-    currentDirection,
-    setMoveDirection
-) {
-    return useCallback(
-        (e) => {
-            if (!isPaused) {
-                const touch = e.touches[0];
-                const startX = touch.clientX;
-                const startY = touch.clientY;
-
-                const handleTouchEnd = (e) => {
-                    const touch = e.changedTouches[0];
-                    const endX = touch.clientX;
-                    const endY = touch.clientY;
-
-                    const swipeDirection = calculateSwipeDirection(
-                        startX,
-                        startY,
-                        endX,
-                        endY,
-                        currentDirection
-                    );
-
-                    switch (swipeDirection) {
-                        case MOVE_DIRECTIONS.UP:
-                            setMoveDirection(MOVE_DIRECTIONS.UP);
-                            break;
-                        case MOVE_DIRECTIONS.DOWN:
-                            setMoveDirection(MOVE_DIRECTIONS.DOWN);
-                            break;
-                        case MOVE_DIRECTIONS.LEFT:
-                            setMoveDirection(MOVE_DIRECTIONS.LEFT);
-                            break;
-                        case MOVE_DIRECTIONS.RIGHT:
-                            setMoveDirection(MOVE_DIRECTIONS.RIGHT);
-                            break;
-                        default:
-                            break;
-                    }
-                };
-
-                document.addEventListener("touchend", handleTouchEnd);
-
-                return () => {
-                    document.removeEventListener("touchend", handleTouchEnd);
-                };
-            }
-        },
-        [isPaused, currentDirection, setMoveDirection]
-    );
-}
-
-export const UseDoubleTapCallback = (isPaused, setGameControls) => {
-    const lastTapTimeRef = useRef(0);
-
-    return useCallback(() => {
-        const now = Date.now();
-        const timeSinceLastTap = now - lastTapTimeRef.current;
-
-        if (timeSinceLastTap < 300) {
-            setGameControls((prevState) => {
-                return {
-                    ...prevState,
-                    isPaused: !isPaused,
-                };
-            });
-        }
-
-        lastTapTimeRef.current = now;
-    }, [isPaused, setGameControls]);
-};
 
 export const calculateSwipeDirection = (
     startX,
@@ -233,6 +112,8 @@ export function buildSnakeTailPoints(snakeDot, snakeDotAdjacent) {
 export const generateFoodDots = (isPaused, setFoodDots, obstacles) =>
     setTimeout(() => {
         if (!isPaused) {
+            const randomInt = getRandomInt(1, 200);
+
             setFoodDots((prev) => {
                 const [randomX, randomY] = getRandomCoordinates(
                     prev,
@@ -244,76 +125,19 @@ export const generateFoodDots = (isPaused, setFoodDots, obstacles) =>
                         key: uuidv4(),
                         x: randomX,
                         y: randomY,
-                        disco: getRandomInt(1, 100) > 50,
+                        disco: randomInt > 50 && randomInt < 120,
+                        alcohol: randomInt > 120 && randomInt < 200,
                     },
                 ];
             });
         }
     }, 5000);
 
-export const generateObstacles = (gameLevel, foodDotsRef, setObstacles) => {
+export const generateObstacles = (gameLevel, foodDots, setObstacles) => {
     const numberOfObstacles = gameLevel > 2 ? LEVEL_3 : LEVEL_2;
     const newObstacles = Array.from({ length: numberOfObstacles }, () =>
-        generateRandomObstacle(foodDotsRef)
+        generateRandomObstacle(foodDots)
     );
-    
+
     setObstacles(newObstacles);
-};
-
-export const useHandleKeyDown = (
-    onKeyDown,
-    isPaused,
-    moveDirection,
-    setMoveDirection,
-    setGameControls
-) => {
-    const handleKeyDown = useCallback(
-        (e) => {
-            onKeyDown(e, isPaused, moveDirection, setMoveDirection, setGameControls);
-        },
-        [isPaused, moveDirection,  setMoveDirection, setGameControls, onKeyDown]
-    );
-
-    useEffect(() => {
-        document.addEventListener("keydown", handleKeyDown);
-
-        return () => {
-            document.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [handleKeyDown]);
-};
-
-export const useHandleTouchStart = (
-    isPaused,
-    currentDirection,
-    setMoveDirection
-) => {
-    const handleTouchStartCallback = UseHandleTouchStart(
-        isPaused,
-        currentDirection,
-        setMoveDirection
-    );
-
-    useEffect(() => {
-        document.addEventListener("touchstart", handleTouchStartCallback);
-
-        return () => {
-            document.removeEventListener(
-                "touchstart",
-                handleTouchStartCallback
-            );
-        };
-    }, [isPaused, handleTouchStartCallback]);
-};
-
-export const useHandleDoubleTap = (isPaused, setGameControls) => {
-    const handleDoubleTap = UseDoubleTapCallback(isPaused, setGameControls);
-
-    useEffect(() => {
-        document.addEventListener("touchend", handleDoubleTap);
-
-        return () => {
-            document.removeEventListener("touchend", handleDoubleTap);
-        };
-    }, [handleDoubleTap]);
 };

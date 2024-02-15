@@ -1,27 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import SnakeTail from "./SnakeTail";
 import SnakeHead from "./SnakeHead";
 import SnakeBodyItem from "./SnakeBodyItem";
 import {
-    GAME_OBJECT_TYPES,
     INITIAL_GAME_SPEED,
     INITIAL_SNAKE_DOTS,
     MOVE_DIRECTIONS,
 } from "../../utils/constants";
-import { checkSnakeOverlap, gameRun, moveSnake } from "../../utils/gameLogic";
-import {
-    generateFoodDots,
-    generateObstacles,
-    onKeyDown,
-    useHandleDoubleTap,
-    useHandleKeyDown,
-    useHandleTouchStart,
-} from "../../utils/utils";
 import {
     useFoodContext,
     useGameControls,
     useObstacleContext,
 } from "../../ContextProviders";
+import { useGameLoop } from "../../hooks/useGameLoop";
+import { useHandleOverlappingObjects } from "../../hooks/useOverlapDetection";
+import {
+    onKeyDown,
+    useHandleDoubleTap,
+    useHandleKeyDown,
+    useHandleTouchStart,
+} from "../../hooks/useSnakeControls";
 
 function Snake() {
     const { gameControls, setGameControls } = useGameControls();
@@ -31,7 +29,25 @@ function Snake() {
     const [speed, setSpeed] = useState(INITIAL_GAME_SPEED);
     const [moveDirection, setMoveDirection] = useState(MOVE_DIRECTIONS.RIGHT);
 
-    const { alive: isAlive, isPaused, discoMode } = gameControls;
+    const { isPaused, gameLevel, discoMode } = gameControls;
+
+    const gameParams = {
+        moveDirection,
+        speed,
+        snakeDots,
+        foodDots,
+        obstacles,
+        gameControls,
+    };
+
+    const gameStateSetters = {
+        setSnakeDots,
+        setFoodDots,
+        setObstacles,
+        setMoveDirection,
+        setSpeed,
+        setGameControls,
+    };
 
     useHandleKeyDown(
         onKeyDown,
@@ -43,83 +59,17 @@ function Snake() {
     useHandleTouchStart(isPaused, moveDirection, setMoveDirection);
     useHandleDoubleTap(isPaused, setGameControls);
 
-    useEffect(() => {
-        let run;
+    useGameLoop(gameParams, gameStateSetters);
 
-        if (!isPaused && isAlive) {
-            run = setInterval(() => {
-                moveSnake(moveDirection, snakeDots, setSnakeDots);
-
-                let overlappingObject = null;
-
-                do {
-                    overlappingObject = checkSnakeOverlap(
-                        snakeDots,
-                        foodDots,
-                        obstacles
-                    );
-
-                    if (overlappingObject) {
-                        switch (overlappingObject) {
-                            case GAME_OBJECT_TYPES.OBSTACLE:
-                                generateObstacles(
-                                    gameControls.gameLevel,
-                                    foodDots,
-                                    setObstacles
-                                );
-                                break;
-                            case GAME_OBJECT_TYPES.FOOD:
-                                generateFoodDots(
-                                    gameControls.isPaused,
-                                    setFoodDots,
-                                    obstacles
-                                );
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-
-                    overlappingObject = "";
-                } while (overlappingObject);
-
-                gameRun(
-                    {
-                        snakeDots,
-                        foodDots,
-                        obstacles,
-                        moveDirection,
-                        speed,
-                        gameControls,
-                    },
-                    {
-                        setSnakeDots,
-                        setFoodDots,
-                        setObstacles,
-                        setMoveDirection,
-                        setSpeed,
-                        setGameControls,
-                    }
-                );
-            }, speed);
-        }
-
-        return () => {
-            clearInterval(run);
-        };
-    }, [
+    useHandleOverlappingObjects(
+        isPaused,
+        gameLevel,
+        setFoodDots,
+        setObstacles,
         snakeDots,
         foodDots,
-        obstacles,
-        setObstacles,
-        moveDirection,
-        speed,
-        isAlive,
-        isPaused,
-        setFoodDots,
-        gameControls,
-        setGameControls,
-    ]);
+        obstacles
+    );
 
     return (
         <>

@@ -1,11 +1,21 @@
 import { useMemo } from "react";
 import { getRandomInt } from "../../utils/utils";
-import { DISCO_BALL_SVG, SVGS } from "../../utils/constants";
+import {
+    DISCO_BALL_SVG,
+    SVGS,
+    WHISKEY_BOTTLE_SVG,
+} from "../../utils/constants";
 
-function FoodItem({ disco }) {
+function FoodItem({ disco, alcohol }) {
     const randomFoodItem = useMemo(() => {
-        return disco ? DISCO_BALL_SVG : SVGS[getRandomInt(0, SVGS.length - 1)];
-    }, [disco]);
+        if (disco) {
+            return DISCO_BALL_SVG;
+        } else if (alcohol) {
+            return WHISKEY_BOTTLE_SVG;
+        } else {
+            return SVGS[getRandomInt(0, SVGS.length - 1)];
+        }
+    }, [disco, alcohol]);
 
     return randomFoodItem;
 }

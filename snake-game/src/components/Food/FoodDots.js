@@ -36,8 +36,8 @@ function FoodDots() {
     return (
         <>
             {foodDots.length > 0 &&
-                foodDots.map(({ key, x, y, disco }) => (
-                    <Food key={key} x={x} y={y} disco={disco} />
+                foodDots.map(({ key, x, y, disco, alcohol }) => (
+                    <Food key={key} x={x} y={y} disco={disco} alcohol={alcohol}/>
                 ))}
         </>
     );
