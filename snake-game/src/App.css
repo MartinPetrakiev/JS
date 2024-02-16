@@ -53,7 +53,7 @@
         magenta,
         red
     );
-    animation: flicker 0.6 s steps(1) infinite;
+    animation: flicker 0.6s steps(1) infinite;
 }
 
 .title {
@@ -81,7 +81,7 @@
     margin-block-end: 0.6em;
 }
 
-@keyframes borderAnimation {
+@keyframes boardSpin {
     0% {
         transform: rotate(0deg);
     }
@@ -91,7 +91,7 @@
 }
 
 .disco-spin {
-    animation: borderAnimation 20s linear infinite;
+    animation: boardSpin 50s linear infinite;
 }
 
 .game-board {

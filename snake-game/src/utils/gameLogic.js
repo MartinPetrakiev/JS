@@ -9,6 +9,10 @@ import {
     SPEED_STEP_LVL_2,
     SPEED_STEP_LVL_N,
     GAME_OBJECT_TYPES,
+    LEVEL_2,
+    SUPER_POINTS,
+    STANDARD_POINTS,
+    OFFSET,
 } from "./constants";
 
 export function getRandomCoordinates(foodDots, obstacles) {
@@ -101,7 +105,7 @@ export function gameRun(gameParams, gameStateSetters) {
             };
         });
 
-        if ((score + 10) % 50 === 0) {
+        if ((score + scoredPoints) % 50 === 0) {
             setGameControls((prev) => {
                 return {
                     ...prev,
@@ -112,7 +116,7 @@ export function gameRun(gameParams, gameStateSetters) {
     }
 
     // Control on snake out of border
-    if (gameControls.gameLevel <= 2 || gameControls.discoMode) {
+    if (gameControls.gameLevel <= LEVEL_2 || gameControls.discoMode) {
         snakeWrap(snakeDots, setSnakeDots, setGameControls);
     } else {
         checkBoardEdgeCollision(snakeDots, gameControls, setGameControls);
@@ -147,7 +151,7 @@ export function play(setGameControls, playerName) {
             isPaused: false,
             gameLevel: 1,
             discoMode: false,
-            discoSpinOn: false
+            discoSpinOn: false,
         };
     });
 }
@@ -181,16 +185,16 @@ function checkCollisionWithObstacle(
 
     switch (moveDirection) {
         case UP:
-            offsetY = headY - 2;
+            offsetY = headY - OFFSET;
             break;
         case DOWN:
-            offsetY = headY + 2;
+            offsetY = headY + OFFSET;
             break;
         case LEFT:
-            offsetX = headX - 2;
+            offsetX = headX - OFFSET;
             break;
         case RIGHT:
-            offsetX = headX + 2;
+            offsetX = headX + OFFSET;
             break;
         default:
             break;
@@ -268,8 +272,16 @@ function checkIfEat(snakeDots, foodDots, setFoodDots, setGameControls) {
 
         setGameControls((prev) => ({
             ...prev,
-            discoMode: foodDots[foodCollidedIndex].discoMode ? true : false,
-            discoSpinOn: foodDots[foodCollidedIndex].alcohol ? true : false,
+            discoMode:
+                foodDots[foodCollidedIndex].disco ||
+                (foodDots[foodCollidedIndex].alcohol && prev.discoMode)
+                    ? true
+                    : false,
+            discoSpinOn:
+                foodDots[foodCollidedIndex].alcohol ||
+                (foodDots[foodCollidedIndex].disco && prev.discoSpinOn)
+                    ? true
+                    : false,
         }));
 
         return foodCollidedIndex;
@@ -282,11 +294,11 @@ function calculateScorePoints(foodDot, discoMode, discoSpinOn) {
     let points = 0;
 
     if ((foodDot.alcohol && discoMode) || (foodDot.disco && discoSpinOn)) {
-        points += 20;
+        points += SUPER_POINTS;
     } else if (foodDot.alcohol && !discoMode) {
-        points -= 10;
+        points -= STANDARD_POINTS;
     } else {
-        points += 10;
+        points += STANDARD_POINTS;
     }
 
     return points;
@@ -356,7 +368,7 @@ function checkIfSelfCollapsed(snakeDots, gameControls, setGameControls) {
 function increaseSpeed(speed, gameLevel, setSpeed) {
     if (speed > 10) {
         setSpeed((prevSpeed) =>
-            gameLevel === 2
+            gameLevel >= LEVEL_2
                 ? prevSpeed - SPEED_STEP_LVL_2
                 : prevSpeed - SPEED_STEP_LVL_N
         );
@@ -408,7 +420,7 @@ function onGameOver(gameControls, setGameControls) {
             playerName: "",
             startButtonName: PLAY_AGAIN_BUTTON_TEXT,
             discoMode: false,
-            discoSpinOn: false
+            discoSpinOn: false,
         };
     });
 }

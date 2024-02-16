@@ -397,8 +397,8 @@ const WHISKEY_BOTTLE_SVG = (
     <svg viewBox="20 20 8500 8500" fill="#000000">
         <g
             id="SVGRepo_tracerCarrier"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
         ></g>
         <g>
             {" "}
@@ -488,6 +488,11 @@ const GAME_OBJECT_TYPES = {
     SNAKE_SEGMENT: "snake-segment",
 };
 
+const SUPER_POINTS = 20;
+const STANDARD_POINTS = 10;
+
+const OFFSET = 2;
+
 export {
     BOARD_MIN,
     BOARD_MAX,
@@ -511,4 +516,7 @@ export {
     DISCO_BALL_SVG,
     WHISKEY_BOTTLE_SVG,
     GAME_OBJECT_TYPES,
+    SUPER_POINTS,
+    STANDARD_POINTS,
+    OFFSET
 };

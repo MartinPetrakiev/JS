@@ -109,7 +109,7 @@ export function buildSnakeTailPoints(snakeDot, snakeDotAdjacent) {
     return pointsString;
 }
 
-export const generateFoodDots = (isPaused, setFoodDots, obstacles) =>
+export const generateFoodDots = (isPaused, setFoodDots, obstacles, gameLevel) =>
     setTimeout(() => {
         if (!isPaused) {
             const randomInt = getRandomInt(1, 200);
@@ -119,14 +119,19 @@ export const generateFoodDots = (isPaused, setFoodDots, obstacles) =>
                     prev,
                     obstacles
                 );
+
+                console.log(gameLevel)
+
                 return [
                     ...prev,
                     {
                         key: uuidv4(),
                         x: randomX,
                         y: randomY,
-                        disco: randomInt > 50 && randomInt < 120,
-                        alcohol: randomInt > 120 && randomInt < 200,
+                        disco:
+                            randomInt > 50 && randomInt < 120 && gameLevel > LEVEL_2,
+                        alcohol:
+                            randomInt > 120 && randomInt < 200 && gameLevel > LEVEL_2,
                     },
                 ];
             });

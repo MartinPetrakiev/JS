@@ -11,9 +11,15 @@ export const useHandleKeyDown = (
 ) => {
     const handleKeyDown = useCallback(
         (e) => {
-            onKeyDown(e, isPaused, moveDirection, setMoveDirection, setGameControls);
+            onKeyDown(
+                e,
+                isPaused,
+                moveDirection,
+                setMoveDirection,
+                setGameControls
+            );
         },
-        [isPaused, moveDirection,  setMoveDirection, setGameControls, onKeyDown]
+        [isPaused, moveDirection, setMoveDirection, setGameControls, onKeyDown]
     );
 
     useEffect(() => {
@@ -105,11 +111,7 @@ export function onKeyDown(
     }
 }
 
-function UseHandleTouchStart(
-    isPaused,
-    currentDirection,
-    setMoveDirection
-) {
+function UseHandleTouchStart(isPaused, currentDirection, setMoveDirection) {
     return useCallback(
         (e) => {
             if (!isPaused) {

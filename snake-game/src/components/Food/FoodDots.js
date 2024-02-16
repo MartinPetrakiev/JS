@@ -11,19 +11,20 @@ function FoodDots() {
     const { foodDots, setFoodDots } = useFoodContext();
     const { obstacles } = useObstacleContext();
     const { gameControls } = useGameControls();
-    const { isPaused } = gameControls;
+    const { isPaused, gameLevel } = gameControls;
 
     useEffect(() => {
         const foodGenerateTimeout = generateFoodDots(
             isPaused,
             setFoodDots,
-            obstacles
+            obstacles,
+            gameLevel
         );
 
         return () => {
             clearTimeout(foodGenerateTimeout);
         };
-    }, [isPaused, setFoodDots, foodDots.length, obstacles]);
+    }, [isPaused, gameLevel, setFoodDots, foodDots.length, obstacles]);
 
     useEffect(() => {
         if (!isPaused && foodDots.length > 6) {
@@ -37,7 +38,13 @@ function FoodDots() {
         <>
             {foodDots.length > 0 &&
                 foodDots.map(({ key, x, y, disco, alcohol }) => (
-                    <Food key={key} x={x} y={y} disco={disco} alcohol={alcohol}/>
+                    <Food
+                        key={key}
+                        x={x}
+                        y={y}
+                        disco={disco}
+                        alcohol={alcohol}
+                    />
                 ))}
         </>
     );
