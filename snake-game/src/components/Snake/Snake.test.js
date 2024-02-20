@@ -7,8 +7,8 @@ import {
 } from "../../ContextProviders";
 import { v4 as uuidv4 } from "uuid";
 import SnakeTail from "./SnakeTail";
-import SnakeBodyItem from "./SnakeBodyItem";
-import SnakeHead from "./SnakeHead";
+import React, { useState } from "react";
+import { useHandleKeyDown } from "../../hooks/useSnakeControls";
 
 const mockGameControls = {
     alive: false,
@@ -22,37 +22,30 @@ const mockGameControls = {
 
 const mockFoodDots = [{ key: uuidv4(), x: 10, y: 10 }];
 
+jest.mock("../../hooks/useSnakeControls", () => ({
+    __esModule: true,
+    useHandleKeyDown: jest.fn(),
+    useHandleTouchStart: jest.fn(),
+    useHandleDoubleTap: jest.fn(),
+    onKeyDown: jest.fn(),
+}));
+
 describe("Snake", () => {
     it("should render the snake game with initial state and controls", () => {
         mockGameControls.alive = true;
         mockGameControls.isPaused = false;
 
-        const snakeDots = [
-            [2, 2],
-            [2, 4],
-            [2, 6],
-            [2, 8],
-        ];
         const setSnakeDots = jest.fn();
 
-        const speed = 240;
         const setSpeed = jest.fn();
 
-        const moveDirection = "RIGHT";
         const setMoveDirection = jest.fn();
 
         render(
             <GameControlsProvider initialValue={mockGameControls}>
-                <ObstacleProvider initialObstacles={[]}>
-                    <FoodProvider initialFoodDots={mockFoodDots}>
-                        <Snake
-                            snakeDots={snakeDots}
-                            setSnakeDots={setSnakeDots}
-                            speed={speed}
-                            setSpeed={setSpeed}
-                            moveDirection={moveDirection}
-                            setMoveDirection={setMoveDirection}
-                        />
+                <ObstacleProvider>
+                    <FoodProvider>
+                        <Snake />
                     </FoodProvider>
                 </ObstacleProvider>
             </GameControlsProvider>
@@ -63,40 +56,62 @@ describe("Snake", () => {
         expect(setMoveDirection).not.toHaveBeenCalled();
     });
 
-    it("should move the snake in the specified direction", () => {
-        mockGameControls.alive = true;
-        mockGameControls.isPaused = false;
+    // it("should move the snake in the specified direction", () => {
+    //     mockGameControls.alive = true;
+    //     mockGameControls.isPaused = false;
 
-        const snakeDots = [
-            [2, 2],
-            [2, 4],
-            [2, 6],
-            [2, 8],
-        ];
-        const setSnakeDots = jest.fn();
+    //     const moveDirection = "RIGHT";
+    //     const setMoveDirection = jest.fn();
+    //     const setMoveDirectionSpy = jest.spyOn(React, "useState");
+    //     setMoveDirectionSpy.mockImplementation(() => [
+    //         moveDirection,
+    //         setMoveDirection,
+    //     ]);
 
-        const speed = 240;
-        const setSpeed = jest.fn();
+    //     render(
+    //         <GameControlsProvider initialValue={mockGameControls}>
+    //             <ObstacleProvider initialObstacles={[]}>
+    //                 <FoodProvider initialFoodDots={mockFoodDots}>
+    //                     <Snake />
+    //                 </FoodProvider>
+    //             </ObstacleProvider>
+    //         </GameControlsProvider>
+    //     );
 
-        const moveDirection = "RIGHT";
-        const setMoveDirection = jest.fn();
+    //     fireEvent.keyDown(document, { keyCode: 37 }); // Left arrow key
 
-        render(<SnakeBodyItem snakeDot={[2, 4]} />);
-        render(<SnakeTail snakeDot={[2, 2]} snakeDotAdjacent={[2, 4]} />);
-        render(<SnakeHead x={2} y={8} />);
+    //     expect(setMoveDirection).toHaveBeenCalled();
+    // });
+
+    it("should handle key down event correctly", () => {
+        const mockSetGameControls = jest.fn();
+        const mockSetMoveDirection = jest.fn();
+        const mockIsPaused = false;
+        const mockMoveDirection = "RIGHT";
+
+        useHandleKeyDown.mockImplementation(
+            (
+                onKeyDown,
+                isPaused,
+                moveDirection,
+                setMoveDirection,
+                setGameControls
+            ) => {
+                onKeyDown(
+                    {},
+                    mockIsPaused,
+                    mockMoveDirection,
+                    mockSetMoveDirection,
+                    mockSetGameControls
+                );
+            }
+        );
 
         render(
             <GameControlsProvider initialValue={mockGameControls}>
-                <ObstacleProvider initialObstacles={[]}>
-                    <FoodProvider initialFoodDots={mockFoodDots}>
-                        <Snake
-                            snakeDots={snakeDots}
-                            setSnakeDots={setSnakeDots}
-                            speed={speed}
-                            setSpeed={setSpeed}
-                            moveDirection={moveDirection}
-                            setMoveDirection={setMoveDirection}
-                        />
+                <ObstacleProvider>
+                    <FoodProvider>
+                        <Snake />
                     </FoodProvider>
                 </ObstacleProvider>
             </GameControlsProvider>
@@ -104,7 +119,53 @@ describe("Snake", () => {
 
         fireEvent.keyDown(document, { keyCode: 37 }); // Left arrow key
 
-        expect(setMoveDirection).toHaveBeenCalled();
+        expect(useHandleKeyDown).toHaveBeenCalledWith(
+            expect.any(Function),
+            mockIsPaused,
+            mockMoveDirection,
+            expect.any(Function),
+            expect.any(Function)
+        );
+    });
+
+    it('should set moveDirection to "Left" on left arrow key press', () => {
+        const mockSetGameControls = jest.fn();
+        const mockIsPaused = false;
+        const mockMoveDirection = "RIGHT";
+        const mockSetMoveDirection = jest.fn();
+        const useStateSpy = jest.spyOn(React, 'useState');
+
+        useHandleKeyDown.mockImplementation(
+            (
+                onKeyDown,
+                isPaused,
+                moveDirection,
+                setMoveDirection,
+                setGameControls
+            ) => {
+                onKeyDown(
+                    { keyCode: 37 },
+                    mockIsPaused,
+                    mockMoveDirection,
+                    mockSetMoveDirection,
+                    mockSetGameControls
+                );
+            }
+        );
+
+        useStateSpy.mockReturnValue([mockMoveDirection, mockSetMoveDirection]);
+
+        render(
+            <GameControlsProvider initialValue={mockGameControls}>
+                <ObstacleProvider>
+                    <FoodProvider>
+                        <Snake />
+                    </FoodProvider>
+                </ObstacleProvider>
+            </GameControlsProvider>
+        );
+
+        expect(mockSetMoveDirection).toHaveBeenCalledWith("LEFT");
     });
 
     it('should render a polygon element with class "snake-item snake-tail"', () => {
