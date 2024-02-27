@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState } from "react";
 
-const GameControlsContext = createContext();
-const FoodContext = createContext();
-const ObstacleContext = createContext();
+const GameControlsContext = React.createContext();
+const FoodContext = React.createContext();
+const ObstacleContext = React.createContext();
 
 export const FoodProvider = ({ children, initialFoodDots }) => {
-    const [foodDots, setFoodDots] = useState(initialFoodDots);
+    const [foodDots, setFoodDots] = React.useState(initialFoodDots);
 
     return (
         <FoodContext.Provider
@@ -16,10 +16,10 @@ export const FoodProvider = ({ children, initialFoodDots }) => {
     );
 };
 
-export const useFoodContext = () => useContext(FoodContext);
+export const useFoodContext = () => React.useContext(FoodContext);
 
 export const ObstacleProvider = ({children, initialObstacles}) => {
-    const [obstacles, setObstacles] = useState(initialObstacles);
+    const [obstacles, setObstacles] = React.useState(initialObstacles);
 
     return (
         <ObstacleContext.Provider value={{obstacles, setObstacles}}>
@@ -28,10 +28,10 @@ export const ObstacleProvider = ({children, initialObstacles}) => {
     )
 }
 
-export const useObstacleContext = () => useContext(ObstacleContext);
+export const useObstacleContext = () => React.useContext(ObstacleContext);
 
 export const GameControlsProvider = ({ children, initialValue }) => {
-    const [gameControls, setGameControls] = useState(initialValue);
+    const [gameControls, setGameControls] = React.useState(initialValue);
 
     return (
         <GameControlsContext.Provider value={{ gameControls, setGameControls }}>
@@ -40,4 +40,4 @@ export const GameControlsProvider = ({ children, initialValue }) => {
     );
 };
 
-export const useGameControls = () => useContext(GameControlsContext);
+export const useGameControls = () => React.useContext(GameControlsContext);

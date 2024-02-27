@@ -120,8 +120,6 @@ export const generateFoodDots = (isPaused, setFoodDots, obstacles, gameLevel) =>
                     obstacles
                 );
 
-                console.log(gameLevel)
-
                 return [
                     ...prev,
                     {

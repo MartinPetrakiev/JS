@@ -13,7 +13,7 @@ function FoodDots() {
     const { gameControls } = useGameControls();
     const { isPaused, gameLevel } = gameControls;
 
-    useEffect(() => {
+    React.useEffect(() => {
         const foodGenerateTimeout = generateFoodDots(
             isPaused,
             setFoodDots,
@@ -26,7 +26,7 @@ function FoodDots() {
         };
     }, [isPaused, gameLevel, setFoodDots, foodDots.length, obstacles]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (!isPaused && foodDots.length > 6) {
             setFoodDots((prev) => {
                 return [...prev.slice(prev.length - 2)];

@@ -27,7 +27,7 @@ function Snake() {
     const { obstacles, setObstacles } = useObstacleContext();
     const [snakeDots, setSnakeDots] = useState(INITIAL_SNAKE_DOTS);
     const [speed, setSpeed] = useState(INITIAL_GAME_SPEED);
-    const [moveDirection, setMoveDirection] = useState(MOVE_DIRECTIONS.RIGHT);
+    const [moveDirection, setMoveDirection] = React.useState(MOVE_DIRECTIONS.RIGHT);
 
     const { isPaused, gameLevel, discoMode } = gameControls;
 

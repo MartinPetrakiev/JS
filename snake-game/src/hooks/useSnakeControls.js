@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { calculateSwipeDirection } from "../utils/utils";
 import { KEYBOARD_KEYS, MOVE_DIRECTIONS } from "../utils/constants";
 
@@ -9,7 +9,7 @@ export const useHandleKeyDown = (
     setMoveDirection,
     setGameControls
 ) => {
-    const handleKeyDown = useCallback(
+    const handleKeyDown = React.useCallback(
         (e) => {
             onKeyDown(
                 e,
@@ -22,7 +22,7 @@ export const useHandleKeyDown = (
         [isPaused, moveDirection, setMoveDirection, setGameControls, onKeyDown]
     );
 
-    useEffect(() => {
+    React.useEffect(() => {
         document.addEventListener("keydown", handleKeyDown);
 
         return () => {

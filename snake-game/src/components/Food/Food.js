@@ -8,7 +8,7 @@ function Food({ x, y, disco, alcohol }) {
             x={`${x}rem`}
             y={`${y}rem`}
         >
-            <FoodItem disco={disco} alcohol={alcohol}/>
+            <FoodItem disco={disco} alcohol={alcohol} />
         </svg>
     );
 }
