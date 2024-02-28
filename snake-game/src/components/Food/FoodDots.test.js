@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+
 import {
     FoodProvider,
     GameControlsProvider,
@@ -160,7 +161,6 @@ describe("FoodDots", () => {
         ];
         const obstacles = [];
         const gameControls = { isPaused: false, gameLevel: 1 };
-        const useEffect = jest.spyOn(React, "useEffect");
 
         render(
             <GameControlsProvider initialValue={gameControls}>
@@ -172,27 +172,36 @@ describe("FoodDots", () => {
             </GameControlsProvider>
         );
 
-        expect(Food).toHaveBeenCalledTimes(2);
-        expect(Food).toHaveBeenCalledWith(
-            expect.objectContaining(
-                { x: 1, y: 2, disco: false, alcohol: false },
-                {}
-            )
-        );
-        expect(screen.getByTestId("mock-food")).toBeInTheDocument();
+        const foodComponent = Food({
+            x: 1,
+            y: 2,
+            disco: false,
+            alcohol: false,
+        });
+        console.log(foodComponent);
 
-        expect(useEffect).toHaveBeenCalledTimes(2);
-        expect(useEffect).toHaveBeenCalledWith(expect.any(Function), [
-            false,
-            1,
-            mockSetFoodDots,
-            2,
-            [],
-        ]);
-        expect(useEffect).toHaveBeenCalledWith(expect.any(Function), [
-            false,
-            2,
-            mockSetFoodDots,
-        ]);
+        expect(screen.getByTestId("food-1-2")).toBeInTheDocument();
+        expect(screen.getByTestId("food-1-2")).toHaveAttribute("data-x", "1");
+        expect(screen.getByTestId("food-1-2")).toHaveAttribute("data-y", "2");
+        expect(screen.getByTestId("food-1-2")).toHaveAttribute(
+            "data-disco",
+            "false"
+        );
+        expect(screen.getByTestId("food-1-2")).toHaveAttribute(
+            "data-alcohol",
+            "false"
+        );
+
+        expect(screen.getByTestId("food-3-4")).toBeInTheDocument();
+        expect(screen.getByTestId("food-3-4")).toHaveAttribute("data-x", "3");
+        expect(screen.getByTestId("food-3-4")).toHaveAttribute("data-y", "4");
+        expect(screen.getByTestId("food-3-4")).toHaveAttribute(
+            "data-disco",
+            "true"
+        );
+        expect(screen.getByTestId("food-3-4")).toHaveAttribute(
+            "data-alcohol",
+            "false"
+        );
     });
 });

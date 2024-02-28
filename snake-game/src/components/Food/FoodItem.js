@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { getRandomInt } from "../../utils/utils";
 import {
     DISCO_BALL_SVG,
@@ -7,7 +7,7 @@ import {
 } from "../../utils/constants";
 
 function FoodItem({ disco, alcohol }) {
-    const randomFoodItem = useMemo(() => {
+    const randomFoodItem = React.useMemo(() => {
         if (disco) {
             return DISCO_BALL_SVG;
         } else if (alcohol) {
