@@ -6,7 +6,7 @@ import {
     ObstacleProvider,
 } from "../../ContextProviders";
 import SnakeTail from "./SnakeTail";
-import React from "react";
+import React, {useState as useStateMock } from "react";
 import { useHandleKeyDown, onKeyDown } from "../../hooks/useSnakeControls";
 
 const mockGameControls = {
@@ -27,7 +27,16 @@ jest.mock("../../hooks/useSnakeControls", () => ({
     onKeyDown: jest.fn(),
 }));
 
+jest.mock("react", () => ({
+    ...jest.requireActual("react"),
+    useState: jest.fn(),
+}));
+
 describe("Snake", () => {
+    beforeEach(() => {
+        useStateMock.mockImplementation((init) => [init, jest.fn()]);
+    });
+
     it("should render the snake game with initial state and controls", () => {
         mockGameControls.alive = true;
         mockGameControls.isPaused = false;
@@ -94,7 +103,7 @@ describe("Snake", () => {
         const mockSetGameControls = jest.fn();
         const mockIsPaused = false;
         const mockMoveDirection = "RIGHT";
-        const mockSetMoveDirection = jest.fn();
+        const mockSetMoveDirection = jest.fn()
 
         jest.spyOn(useHandleKeyDown, 'mockReturnValue').mockImplementationOnce((onKeyDown) => {
             onKeyDown(

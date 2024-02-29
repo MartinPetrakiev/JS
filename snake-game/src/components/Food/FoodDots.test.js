@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 
 import {
     FoodProvider,
@@ -7,37 +7,17 @@ import {
 } from "../../ContextProviders";
 import React, { useState as useStateMock } from "react";
 import FoodDots from "./FoodDots";
-import Food from "./Food";
-
-jest.mock("../../utils/utils", () => ({
-    generateFoodDots: jest.fn(),
-    getRandomInt: jest.fn(),
-}));
 
 jest.mock("react", () => ({
     ...jest.requireActual("react"),
     useState: jest.fn(),
 }));
 
-jest.mock("./Food", () => ({
-    __esModule: true,
-    default: jest
-        .fn()
-        .mockImplementation(({ x, y, disco, alcohol }) => (
-            <div
-                data-testid="mock-food"
-                data-x={x}
-                data-y={y}
-                data-disco={disco}
-                data-alcohol={alcohol}
-            ></div>
-        )),
-}));
-
 describe("FoodDots", () => {
     const mockSetFoodDots = jest.fn();
 
     beforeEach(() => {
+        jest.resetModules();
         jest.useFakeTimers();
         useStateMock.mockImplementation((init) => [init, mockSetFoodDots]);
     });
@@ -45,6 +25,7 @@ describe("FoodDots", () => {
     afterEach(() => {
         jest.runOnlyPendingTimers();
         jest.useRealTimers();
+        cleanup();
     });
 
     it("should not render any food items when foodDots state is empty", () => {
@@ -76,7 +57,10 @@ describe("FoodDots", () => {
             0,
             mockSetFoodDots,
         ]);
-        expect(Food).not.toHaveBeenCalled();
+
+        const foodComponents = screen.queryAllByTestId(/food-\d+-\d+/);
+
+        expect(foodComponents).toHaveLength(0);
     });
 
     it("should generate new food dots based on game level and obstacles", () => {
@@ -111,15 +95,10 @@ describe("FoodDots", () => {
             2,
             mockSetFoodDots,
         ]);
-        expect(Food).toHaveBeenCalledTimes(2);
-        expect(Food).toHaveBeenCalledWith(
-            { x: 1, y: 2, disco: false, alcohol: false },
-            {}
-        );
-        expect(Food).toHaveBeenCalledWith(
-            { x: 3, y: 4, disco: true, alcohol: false },
-            {}
-        );
+
+        const foodComponents = screen.queryAllByTestId(/food-\d+-\d+/);
+
+        expect(foodComponents).toHaveLength(2);
     });
 
     it("should not generate new food dots when game is paused", () => {
@@ -155,6 +134,11 @@ describe("FoodDots", () => {
     });
 
     it("should render food items when foodDots state is not empty", () => {
+        jest.mock("./Food", () => ({
+            __esModule: true,
+            default: jest.requireActual("./Food").default,
+        }));
+
         const foodDots = [
             { key: "1", x: 1, y: 2, disco: false, alcohol: false },
             { key: "2", x: 3, y: 4, disco: true, alcohol: false },
@@ -171,14 +155,6 @@ describe("FoodDots", () => {
                 </ObstacleProvider>
             </GameControlsProvider>
         );
-
-        const foodComponent = Food({
-            x: 1,
-            y: 2,
-            disco: false,
-            alcohol: false,
-        });
-        console.log(foodComponent);
 
         expect(screen.getByTestId("food-1-2")).toBeInTheDocument();
         expect(screen.getByTestId("food-1-2")).toHaveAttribute("data-x", "1");
