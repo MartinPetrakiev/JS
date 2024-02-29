@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React from "react";
 
 const GameControlsContext = React.createContext();
 const FoodContext = React.createContext();

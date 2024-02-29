@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { clearGameHistory } from "../../utils/gameLogic";
 
-function ScoreBoard({ gameHistory, score }) {
+function ScoreBoard({ gameHistory, score, setGameControls}) {
     const [sortBy, setSortBy] = useState(null);
     const [sortOrder, setSortOrder] = useState("asc");
 
@@ -63,6 +64,9 @@ function ScoreBoard({ gameHistory, score }) {
                     </table>
                 )}
             </div>
+            <button className="button" onClick={() => clearGameHistory(setGameControls)}>
+                Clear Scoreboard
+            </button>
         </>
     );
 }

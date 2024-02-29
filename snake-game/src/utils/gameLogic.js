@@ -117,6 +117,8 @@ export function gameRun(gameParams, gameStateSetters) {
 
     // Control on snake out of border
     if (gameControls.gameLevel <= LEVEL_2 || gameControls.discoMode) {
+        // console.log(gameControls.gameLevel)
+        console.log(LEVEL_2);
         snakeWrap(snakeDots, setSnakeDots, setGameControls);
     } else {
         checkBoardEdgeCollision(snakeDots, gameControls, setGameControls);
@@ -152,6 +154,16 @@ export function play(setGameControls, playerName) {
             gameLevel: 1,
             discoMode: false,
             discoSpinOn: false,
+        };
+    });
+}
+
+export function clearGameHistory(setGameControls) {
+    localStorage.removeItem(GAME_HISOTRY);
+    setGameControls((prev) => {
+        return {
+            ...prev,
+            gameHistory: [],
         };
     });
 }

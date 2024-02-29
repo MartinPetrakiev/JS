@@ -457,8 +457,8 @@ const WHISKEY_BOTTLE_SVG = (
 
 const INITIAL_GAME_SPEED = 240;
 
-const LEVEL_2 = 8;
-const LEVEL_3 = 15;
+const LEVEL_2 = 2;
+const LEVEL_3 = 3;
 
 const OFFSET_X_HALF = 16;
 const OFFSET_X_FULL = 32;

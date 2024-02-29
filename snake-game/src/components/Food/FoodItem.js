@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { getRandomInt } from "../../utils/utils";
 import {
     DISCO_BALL_SVG,
