@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import SnakeTail from "./SnakeTail";
 import SnakeHead from "./SnakeHead";
 import SnakeBodyItem from "./SnakeBodyItem";
@@ -25,9 +25,11 @@ function Snake() {
     const { gameControls, setGameControls } = useGameControls();
     const { foodDots, setFoodDots } = useFoodContext();
     const { obstacles, setObstacles } = useObstacleContext();
-    const [snakeDots, setSnakeDots] = useState(INITIAL_SNAKE_DOTS);
-    const [speed, setSpeed] = useState(INITIAL_GAME_SPEED);
-    const [moveDirection, setMoveDirection] = React.useState(MOVE_DIRECTIONS.RIGHT);
+    const [snakeDots, setSnakeDots] = React.useState(INITIAL_SNAKE_DOTS);
+    const [speed, setSpeed] = React.useState(INITIAL_GAME_SPEED);
+    const [moveDirection, setMoveDirection] = React.useState(
+        MOVE_DIRECTIONS.RIGHT
+    );
 
     const { isPaused, gameLevel, discoMode } = gameControls;
 
@@ -88,7 +90,11 @@ function Snake() {
                         />
                     )}
                     {index === allDots.length - 1 && (
-                        <SnakeHead x={snakeDot[1]} y={snakeDot[0]} />
+                        <SnakeHead
+                            x={snakeDot[1]}
+                            y={snakeDot[0]}
+                            data-move-direction={moveDirection}
+                        />
                     )}
                 </React.Fragment>
             ))}
