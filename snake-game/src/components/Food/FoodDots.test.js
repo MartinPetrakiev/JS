@@ -36,11 +36,13 @@ describe("FoodDots", () => {
 
         render(
             <GameControlsProvider initialValue={gameControls}>
-                <ObstacleProvider initialObstacles={obstacles}>
-                    <FoodProvider initialFoodDots={foodDots}>
-                        <FoodDots />
-                    </FoodProvider>
-                </ObstacleProvider>
+                <svg>
+                    <ObstacleProvider initialObstacles={obstacles}>
+                        <FoodProvider initialFoodDots={foodDots}>
+                            <FoodDots />
+                        </FoodProvider>
+                    </ObstacleProvider>
+                </svg>
             </GameControlsProvider>
         );
 
@@ -74,11 +76,13 @@ describe("FoodDots", () => {
 
         render(
             <GameControlsProvider initialValue={gameControls}>
-                <ObstacleProvider initialObstacles={obstacles}>
-                    <FoodProvider initialFoodDots={foodDots}>
-                        <FoodDots />
-                    </FoodProvider>
-                </ObstacleProvider>
+                <svg>
+                    <ObstacleProvider initialObstacles={obstacles}>
+                        <FoodProvider initialFoodDots={foodDots}>
+                            <FoodDots />
+                        </FoodProvider>
+                    </ObstacleProvider>
+                </svg>
             </GameControlsProvider>
         );
 
@@ -109,11 +113,13 @@ describe("FoodDots", () => {
 
         render(
             <GameControlsProvider initialValue={gameControls}>
-                <ObstacleProvider initialObstacles={obstacles}>
-                    <FoodProvider initialFoodDots={[]}>
-                        <FoodDots />
-                    </FoodProvider>
-                </ObstacleProvider>
+                <svg>
+                    <ObstacleProvider initialObstacles={obstacles}>
+                        <FoodProvider initialFoodDots={[]}>
+                            <FoodDots />
+                        </FoodProvider>
+                    </ObstacleProvider>
+                </svg>
             </GameControlsProvider>
         );
 
@@ -148,11 +154,13 @@ describe("FoodDots", () => {
 
         render(
             <GameControlsProvider initialValue={gameControls}>
-                <ObstacleProvider initialObstacles={obstacles}>
-                    <FoodProvider initialFoodDots={foodDots}>
-                        <FoodDots />
-                    </FoodProvider>
-                </ObstacleProvider>
+                <svg>
+                    <ObstacleProvider initialObstacles={obstacles}>
+                        <FoodProvider initialFoodDots={foodDots}>
+                            <FoodDots />
+                        </FoodProvider>
+                    </ObstacleProvider>
+                </svg>
             </GameControlsProvider>
         );
 

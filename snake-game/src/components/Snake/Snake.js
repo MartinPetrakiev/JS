@@ -30,6 +30,7 @@ function Snake() {
     const [moveDirection, setMoveDirection] = React.useState(
         MOVE_DIRECTIONS.RIGHT
     );
+    const [isMoving, setIsMoving] = React.useState(false);
 
     const { isPaused, gameLevel, discoMode } = gameControls;
 
@@ -56,7 +57,10 @@ function Snake() {
         isPaused,
         moveDirection,
         setMoveDirection,
-        setGameControls
+        setGameControls,
+        isMoving,
+        setIsMoving,
+        speed
     );
     useHandleTouchStart(isPaused, moveDirection, setMoveDirection);
     useHandleDoubleTap(isPaused, setGameControls);

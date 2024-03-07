@@ -7,19 +7,26 @@ export const useHandleKeyDown = (
     isPaused,
     moveDirection,
     setMoveDirection,
-    setGameControls
+    setGameControls,
+    isMoving,
+    setIsMoving,
+    speed
 ) => {
     const handleKeyDown = React.useCallback(
         (e) => {
+            if (isMoving) return;
+
             onKeyDown(
                 e,
                 isPaused,
                 moveDirection,
                 setMoveDirection,
-                setGameControls
+                setGameControls,
+                setIsMoving,
+                speed
             );
         },
-        [isPaused, moveDirection, setMoveDirection, setGameControls, onKeyDown]
+        [isPaused, moveDirection, setMoveDirection, setGameControls, onKeyDown, isMoving, setIsMoving, speed]
     );
 
     React.useEffect(() => {
@@ -71,7 +78,9 @@ export function onKeyDown(
     isPaused,
     moveDirection,
     setMoveDirection,
-    setGameControls
+    setGameControls,
+    setIsMoving,
+    speed
 ) {
     const { UP, DOWN, LEFT, RIGHT, PAUSE } = KEYBOARD_KEYS;
     const oppositeDirections = {
@@ -84,6 +93,8 @@ export function onKeyDown(
     if (moveDirection === oppositeDirections[e.keyCode]) {
         return;
     }
+
+    setIsMoving(true);
 
     switch (e.keyCode) {
         case UP:
@@ -109,6 +120,10 @@ export function onKeyDown(
         default:
             break;
     }
+
+    setTimeout(() => {
+        setIsMoving(false);
+    }, speed);
 }
 
 function UseHandleTouchStart(isPaused, currentDirection, setMoveDirection) {
