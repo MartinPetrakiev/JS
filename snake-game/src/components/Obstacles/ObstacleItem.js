@@ -8,6 +8,9 @@ function ObstacleItem({ x, y }) {
       className="obstacle"
       x={`${x * OBSTACLE_SIZE}rem`}
       y={`${y * OBSTACLE_SIZE}rem`}
+      data-testid={`obstacle-${x}-${y}`}
+      data-x={x}
+      data-y={y}
     />
   );
 }

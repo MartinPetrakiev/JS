@@ -1,6 +1,7 @@
 import {
     LEVEL_2,
-    LEVEL_3,
+    LOW_LEVEL_OBSTACLES_COUNT,
+    HIGHER_LEVEL_OBSTACLES_COUNT,
     MOVE_DIRECTIONS,
     OFFSET_X_FULL,
     OFFSET_X_HALF,
@@ -127,9 +128,13 @@ export const generateFoodDots = (isPaused, setFoodDots, obstacles, gameLevel) =>
                         x: randomX,
                         y: randomY,
                         disco:
-                            randomInt > 50 && randomInt < 120 && gameLevel > LEVEL_2,
+                            randomInt > 50 &&
+                            randomInt < 120 &&
+                            gameLevel > LEVEL_2,
                         alcohol:
-                            randomInt > 120 && randomInt < 200 && gameLevel > LEVEL_2,
+                            randomInt > 120 &&
+                            randomInt < 200 &&
+                            gameLevel > LEVEL_2,
                     },
                 ];
             });
@@ -137,7 +142,14 @@ export const generateFoodDots = (isPaused, setFoodDots, obstacles, gameLevel) =>
     }, 5000);
 
 export const generateObstacles = (gameLevel, foodDots, setObstacles) => {
-    const numberOfObstacles = gameLevel > 2 ? LEVEL_3 : LEVEL_2;
+    let numberOfObstacles = 0;
+
+    if (gameLevel === LEVEL_2) {
+        numberOfObstacles = LOW_LEVEL_OBSTACLES_COUNT;
+    } else if (gameLevel > 2) {
+        numberOfObstacles = HIGHER_LEVEL_OBSTACLES_COUNT + gameLevel;
+    }
+
     const newObstacles = Array.from({ length: numberOfObstacles }, () =>
         generateRandomObstacle(foodDots)
     );
