@@ -7,7 +7,7 @@ import {
 } from "../../ContextProviders";
 import SnakeTail from "./SnakeTail";
 import React, { useState as useStateMock } from "react";
-import { useHandleKeyDown, onKeyDown } from "../../hooks/useSnakeControls";
+import { INITIAL_SNAKE_DOTS } from "../../utils/constants";
 
 const mockGameControls = {
     alive: false,
@@ -19,28 +19,17 @@ const mockGameControls = {
     gameHistory: [],
 };
 
-jest.mock("../../hooks/useSnakeControls", () => ({
-    __esModule: true,
-    useHandleKeyDown: jest.fn(),
-    useHandleTouchStart: jest.fn(),
-    useHandleDoubleTap: jest.fn(),
-    onKeyDown: jest.fn(),
-}));
-
 jest.mock("react", () => ({
     ...jest.requireActual("react"),
     useState: jest.fn(),
 }));
 
 describe("Snake", () => {
-    const mockSetSnakeDots = jest.fn();
-    const mockSetMoveDirection = jest.fn();
-
     beforeEach(() => {
         useStateMock.mockImplementation(jest.requireActual("react").useState);
     });
 
-    it("should render the snake game with initial state and controls", () => {
+    it("should render the snake with initial snake dots", () => {
         mockGameControls.alive = true;
         mockGameControls.isPaused = false;
 
@@ -56,25 +45,17 @@ describe("Snake", () => {
             </GameControlsProvider>
         );
 
-        expect(mockSetSnakeDots).not.toHaveBeenCalled();
-        expect(mockSetMoveDirection).not.toHaveBeenCalled();
+        const snakeHead = screen.getByTestId("snake-head");
+        const snakeTail = screen.getByTestId("snake-tail");
+
+        const snakeDots = screen.getAllByRole("snake-dot");
+
+        expect(snakeHead).toBeInTheDocument();
+        expect(snakeTail).toBeInTheDocument();
+        expect(snakeDots.length).toBe(INITIAL_SNAKE_DOTS.length);
     });
 
-    it("should handle key down event correctly", () => {
-        const mockSetGameControls = jest.fn();
-        const mockIsPaused = false;
-        const mockMoveDirection = "RIGHT";
-
-        useHandleKeyDown.mockImplementationOnce((onKeyDown) => {
-            onKeyDown(
-                {},
-                mockIsPaused,
-                mockMoveDirection,
-                mockSetMoveDirection,
-                mockSetGameControls
-            );
-        });
-
+    it('should set moveDirection to "DOWN" on Down arrow key press', () => {
         render(
             <GameControlsProvider initialValue={mockGameControls}>
                 <svg>
@@ -87,25 +68,21 @@ describe("Snake", () => {
             </GameControlsProvider>
         );
 
-        // fireEvent.keyDown(window.document, { keyCode: 37 }); // Left arrow key
+        const snakeHeadElement = screen.getByTestId("snake-head");
 
-        expect(useHandleKeyDown).toHaveBeenCalledWith(
-            onKeyDown,
-            mockIsPaused,
-            mockMoveDirection,
-            expect.any(Function),
-            expect.any(Function),
-            expect.any(Boolean),
-            expect.any(Function),
-            expect.any(Number)
+        fireEvent.keyDown(document, {
+            key: "ArrowDown",
+            code: "ArrowDown",
+            keyCode: 40,
+        });
+
+        expect(snakeHeadElement.getAttribute("data-move-direction")).toBe(
+            "DOWN"
         );
     });
 
-    it('should set moveDirection to "Left" on left arrow key press', () => {
-        const mockIsPaused = false;
-        const mockMoveDirection = "RIGHT";
-
-        const { rerender } = render(
+    it('should NOT set moveDirection if oposite direction key press', () => {
+        render(
             <GameControlsProvider initialValue={mockGameControls}>
                 <svg>
                     <ObstacleProvider>
@@ -118,32 +95,16 @@ describe("Snake", () => {
         );
 
         const snakeHeadElement = screen.getByTestId("snake-head");
-        snakeHeadElement.focus();
 
-        fireEvent.keyDown(window, {
+        fireEvent.keyDown(document, {
             key: "ArrowLeft",
             code: "ArrowLeft",
             keyCode: 37,
         });
 
-        expect(useHandleKeyDown).toHaveBeenCalled();
-
-        expect(useHandleKeyDown).toHaveBeenCalledWith(
-            onKeyDown,
-            mockIsPaused,
-            mockMoveDirection,
-            expect.any(Function),
-            expect.any(Function),
-            expect.any(Boolean),
-            expect.any(Function),
-            expect.any(Number)
+        expect(snakeHeadElement.getAttribute("data-move-direction")).toBe(
+            "RIGHT"
         );
-
-        // expect(onKeyDown).toHaveBeenCalled();
-
-        // expect(snakeHeadElement.getAttribute("data-move-direction")).toBe(
-        //     "LEFT"
-        // );
     });
 
     it('should render a polygon element with class "snake-item snake-tail"', () => {

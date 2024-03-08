@@ -9,6 +9,7 @@ function SnakeHead({ x, y, ...restOfProps }) {
             r={"21px"}
             data-move-direction={restOfProps["data-move-direction"]}
             data-testid="snake-head"
+            role="snake-dot"
         />
     );
 }

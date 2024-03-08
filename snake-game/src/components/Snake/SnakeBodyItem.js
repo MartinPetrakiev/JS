@@ -9,6 +9,7 @@ function SnakeBodyItem({ snakeDot, discoMode }) {
             x={`${snakeDot[1]}rem`}
             y={`${snakeDot[0]}rem`}
             fill={discoMode ? RAINBOW_COLORS[getRandomInt(0, RAINBOW_COLORS.length - 1)] : "mediumseagreen"}
+            role="snake-dot"
         />
     );
 }
